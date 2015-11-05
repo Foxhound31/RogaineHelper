@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         MainWindow.cpp \
-    MapRecognaizer.cpp
+    MapRecognaizer.cpp \
+    matToPixmap.cpp
 
 HEADERS  += MainWindow.h \
-    MapRecognaizer.h
+    MapRecognaizer.h \
+    matToPixmap.h
 
 FORMS    += MainWindow.ui
 

@@ -10,6 +10,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
 
+private slots:
+    void on_selectMapButton_clicked();
+
 private:
     Ui::MainWindow ui;
 };
