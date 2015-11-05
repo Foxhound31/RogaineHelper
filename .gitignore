@@ -27,3 +27,6 @@
 *.out
 *.app
 /RogaineHelper/*.user
+/bin_debug
+/debug
+/release
