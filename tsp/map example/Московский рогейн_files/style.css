@@ -1,0 +1,203 @@
+.header {
+	text-align: center;
+	margin-bottom: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14pt;
+}
+
+.info {
+	background-color: InfoBackground;
+	font-size: 10pt;
+}
+.box {
+	background-color: Gray;
+}
+
+pre {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 10pt;
+}
+
+.resultheader {
+	font-family: "Courier New", Courier, monospace;
+	font-size: 10pt;
+	font-weight: bold;
+	border: 1px solid Gray;
+	margin-top: 5px;
+	border-width: 1px 1px 1px 1px;
+	color: #FFFFCC;
+	background-color: Navy;
+}
+
+.classheader {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+}
+
+
+BODY {
+	MARGIN-TOP: 5px;
+	FONT-SIZE: 10pt;
+	MARGIN-LEFT: 5px;
+	COLOR: black;
+	FONT-FAMILY: Verdana, Geneva, Arial, Helvetica, sans-serif;
+
+}
+
+.r1 {
+	background-color: #EEF7FF;
+	font-size: 10pt;
+	font-family: Arial, Helvetica, sans-serif;
+	text-decoration: none;
+}
+
+.r0 {
+	background-color: #D0F0FF;
+	font-size: 10pt;
+	font-family: Arial, Helvetica, sans-serif;
+	text-decoration: none;
+}
+.s1 {
+	background-color: #EEF7FF;
+	font-size: 10pt;
+	font-family: "Courier New", Courier, monospace;
+	text-decoration: none;
+}
+
+.s0 {
+	background-color: White;
+	font-size: 10pt;
+	font-family: "Courier New", Courier, monospace;
+	text-decoration: none;
+}
+
+.miniurl {
+	font-size: 10pt;
+}
+
+.split {
+	font-style: italic;
+}
+
+a:active.rlink, a:link.rlink, a:visited.rlink {
+	text-decoration: none;
+	color: Maroon;
+}
+
+a:hover.rlink {
+	text-decoration: underline;
+	color: Red;
+}
+
+.classinfo {
+}
+
+.team0 {
+	background-color: #D0F0FF;
+	font-size: 10pt;
+	text-decoration: none;
+	font-weight: bold;
+    text-align: left;
+    vertical-align: top;	
+}
+.team1
+{
+    background-color: #EEF7FF;
+    font-size: 10pt;
+    text-decoration: none;
+	font-weight: bold;
+    text-align: left;
+    vertical-align: top;
+}
+.fullTable{
+	border: 2px solid Silver;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-variant: normal;
+	font-weight: bolder;
+	margin-top: 5px;
+	margin-bottom: 4px;
+}
+
+.styleBig{
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 28pt;
+	font-weight: bold;
+}
+
+.styleLegNr{
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 18pt;
+	font-weight: bold;
+	border: 2px solid Gray;
+	margin-bottom: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	margin-top: 2px;
+	width: 25px;
+}
+
+.styleNameBox{
+	border-bottom: 1px dashed Black;
+}
+
+.styleName{
+	width: 200px;
+	border-bottom: 1px dashed Black;
+}
+
+.styleNumber{
+	text-align: right;
+	width: 60px;
+	border-bottom: 1px dashed Black;
+}
+
+td
+{
+    vertical-align: top;
+}
+
+.css_members 
+{
+    font-size: 8pt;
+}
+
+.css_result
+{
+    font-size: 16pt;
+    background-color: #FFFFCC;
+    color: #FF0000;
+    font-weight: bolder;
+    text-align: center;
+}    
+
+.css_splits
+{
+    font-size: 8pt;
+    font-family: 'Courier New' , Courier, monospace;
+    font-weight: normal;
+}
+
+.time_ND0
+{
+    background-color: #C0C0C0;
+    color: #FFFF00;
+}
+
+.time_ND1
+{
+    background-color: #FFFFCC;
+    color: #008000;
+}
+
+.win_gold {
+    color: red;
+}
+
+.win_silver {
+    color: blue;
+}
+
+.win_bronz {
+    color: green;
+}

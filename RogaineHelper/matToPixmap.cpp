@@ -7,6 +7,7 @@ QImage cvMatToQImage(const cv::Mat& mat) {
     const int width = mat.cols;
     const int height = mat.rows;
     const int bytesPerLine = mat.step;
+
     switch (mat.type()) {
     // 8-bit, 4 channel
     case CV_8UC4:
@@ -25,7 +26,7 @@ QImage cvMatToQImage(const cv::Mat& mat) {
     // 8-bit, 1 channel
     case CV_8UC1:
     {
-        static QVector<QRgb>  sColorTable;
+        static QVector<QRgb> sColorTable;
 
         // only create our color table once
         if (sColorTable.isEmpty()) {
@@ -46,5 +47,5 @@ QImage cvMatToQImage(const cv::Mat& mat) {
 }
 
 QPixmap cvMatToQPixmap(const cv::Mat& mat) {
-   return QPixmap::fromImage(cvMatToQImage(mat));
+    return QPixmap::fromImage(cvMatToQImage(mat));
 }
