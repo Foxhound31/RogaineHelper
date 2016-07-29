@@ -1,8 +1,11 @@
-#include "matToPixmap.h"
+#include "OpencvQtTools.h"
 #include <QDebug>
 
-// Функции взяты из http://asmaloney.com/2013/11/code/converting-between-cvmat-and-qimage-or-qpixmap/
 
+//--------------------------------------------------------------------------------------
+// Convert OpenCV Mat frame to QT image format
+// http://asmaloney.com/2013/11/code/converting-between-cvmat-and-qimage-or-qpixmap/
+//--------------------------------------------------------------------------------------
 QImage cvMatToQImage(const cv::Mat& mat) {
     const int width = mat.cols;
     const int height = mat.rows;
@@ -45,6 +48,12 @@ QImage cvMatToQImage(const cv::Mat& mat) {
     return QImage();
 }
 
+//--------------------------------------------------------------------------------------
+// Convert OpenCV Mat frame to QT pixmap format
+// http://asmaloney.com/2013/11/code/converting-between-cvmat-and-qimage-or-qpixmap/
+//--------------------------------------------------------------------------------------
 QPixmap cvMatToQPixmap(const cv::Mat& mat) {
    return QPixmap::fromImage(cvMatToQImage(mat));
 }
+
+
