@@ -25,14 +25,14 @@ FORMS    += MainWindow.ui
 
 INCLUDEPATH += $$(OPENCV_DIR)/build/include
 
-LIBS += -L$$(OPENCV_DIR)/build/x64/vc12/lib
+LIBS += -L$$(OPENCV_DIR)/build/x86/vc12/lib
 
 CONFIG(debug, debug|release) {
-    DESTDIR = ../bin_debug
+    #DESTDIR = ../bin_debug
     LIBS += opencv_ts300d.lib \
-        opencv_world300d.lib
+            opencv_world300d.lib
 } else {
-    DESTDIR = ../bin_release
+    #DESTDIR = ../bin_release
     LIBS += opencv_ts300.lib \
-    opencv_world300.lib
+            opencv_world300.lib
 }

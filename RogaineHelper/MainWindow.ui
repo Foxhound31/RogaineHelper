@@ -23,20 +23,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="selectMarkButton">
-      <property name="text">
-       <string>Выберите метку</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="findMarksButton">
-      <property name="text">
-       <string>Найти метки</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QLabel" name="mapLabel">
       <property name="text">
        <string>TextLabel</string>
