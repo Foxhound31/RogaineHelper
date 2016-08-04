@@ -45,14 +45,23 @@ FORMS += \
 INCLUDEPATH += $$(OPENCV_DIR)/build/include
 LIBS += -L$$(OPENCV_DIR)/build/x86/vc12/lib
 
-
 Debug:  LIBS += opencv_ts300d.lib \
                 opencv_world300d.lib
-
 Release:LIBS += opencv_ts300.lib \
                 opencv_world300.lib
 
 
+INCLUDEPATH += $$PWD/NodeEditorWidget/inc
+LIBS += -L$$PWD/NodeEditorWidget/bin
+
+Debug:  LIBS += NodeEditorWidgetd.lib
+Release:LIBS += NodeEditorWidget.lib
+
+
+
+#Binary denepdencies
+Debug: PRE_TARGETDEPS += $$PWD/NodeEditorWidget/bin/NodeEditorWidgetd.lib
+Release: PRE_TARGETDEPS += $$PWD/NodeEditorWidget/bin/NodeEditorWidget.lib
 
 
 
