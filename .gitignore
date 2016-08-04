@@ -30,3 +30,5 @@
 /bin_debug
 /debug
 /release
+*.user
+debug
