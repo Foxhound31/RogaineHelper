@@ -5,103 +5,119 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
-#include "matToPixmap.h"
+#include <QGraphicsItem>
+#include <QDir>
+#include "MapRecognizer.h"
+#include "OpencvQtTools.h"
 
-int median(std::vector<int>& v) {
-    size_t n = v.size() / 2;
-    nth_element(v.begin(), v.begin() + n, v.end());
-    return v[n];
-}
+const QString settingsFileName = "RogaineHelper.ini";
+const QString settingsKeyPath = "filesPath";
 
-// Функция возвращает среднее значение цвета (BGR) для заданной окружности (x,y,radius)
-// Mat в формате BGR, 8UC3
-cv::Vec3b averageCircleColor(const cv::Mat& mat, const cv::Vec3f circle) {
-    auto mat2 = mat.clone();
 
-    assert(mat.channels() == 3);
-    const float x = circle[0];
-    const float y = circle[1];
-    const float r = circle[2];
-    const double angleStep = 0.1;
-    const size_t amount =  (2*M_PI/angleStep + 1)*3;
-    double avgB = 0;
-    double avgG = 0;
-    double avgR = 0;
-
-    std::vector<int> bVec(amount);
-    std::vector<int> gVec(amount);
-    std::vector<int> rVec(amount);
-
-    size_t index = 0;
-    for (double angle = 0; angle < 2*M_PI; angle += angleStep) {
-        auto getColorLambda = [&](double r) -> cv::Vec3b {
-            int row = y+r*sin(angle);
-            int col = x+r*cos(angle);
-            if (row < 0)
-                row = 0;
-            if (col < 0)
-                col = 0;
-            if (row >= mat.rows)
-                row = mat.rows - 1;
-            if (col >= mat.cols)
-                col = mat.cols - 1;
-            assert(row >= 0 && row < mat.rows);
-            assert(col >= 0 && col < mat.cols);
-            mat2.at<cv::Vec3b>(row, col) = cv::Vec3b(0,0,0);
-            return mat.at<cv::Vec3b>(row, col);
-        };
-        auto color = getColorLambda(r);
-        bVec[index] = color[0];
-        gVec[index] = color[1];
-        rVec[index] = color[2];
-        color = getColorLambda(r+1);
-        ++index;
-        bVec[index] = color[0];
-        gVec[index] = color[1];
-        rVec[index] = color[2];
-        color = getColorLambda(r-1);
-        ++index;
-        bVec[index] = color[0];
-        gVec[index] = color[1];
-        rVec[index] = color[2];
-        ++index;
-    }
-    int medB = median(bVec);
-    int medG = median(gVec);
-    int medR = median(rVec);
-    cv::imshow("1", mat2);
-    return cv::Vec3b(medB, medG, medR);
-}
-
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
+{
     ui.setupUi(this);
-}
 
-void MainWindow::on_selectMapButton_clicked() {
-    QSettings settings("RogaineHelper", QSettings::IniFormat);
-    const QString pathKeyName = "imagePath";
-    QString path = settings.value(pathKeyName).toString();
-    const auto fileName = QFileDialog::getOpenFileName(nullptr, "Выберите фото карты", path,
-                                                 QString("Изображения (*.png *.jpg)"));
-    if (!fileName.isEmpty()) {
-        mapImage = cv::imread(fileName.toStdString().c_str(), cv::IMREAD_COLOR);
-        ui.mapLabel->setPixmap(cvMatToQPixmap(mapImage));
-        QFileInfo fileInfo(fileName);
-        path = fileInfo.absoluteDir().absolutePath();
-        settings.setValue(pathKeyName, path);
+    // Connect view and scene
+    ui.view->setScene(&scene);
+
+    // Configure scene and connect singnals-slots for it
+    scene.setSceneRect(QRectF(0, 0, 5000, 5000));
+    //connect(nodeEditorScene, SIGNAL(itemInserted(NodeItem*)), this, SLOT(itemInserted(NodeItem*)));
+    //connect(nodeEditorScene, SIGNAL(itemSelected(QGraphicsItem*)), this, SLOT(itemSelected(QGraphicsItem*)));
+
+
+    // Check settings
+    QSettings settings(settingsFileName, QSettings::IniFormat);
+    ui.textBrowser->append("Application settings file: " + settings.fileName());
+    if (settings.allKeys().count() == 0) {
+        ui.textBrowser->append("No settings in file");
     }
 }
 
+//--------------------------------------------------------------------------------------
+// Open Map image file
+//--------------------------------------------------------------------------------------
+void MainWindow::on_openMapButton_clicked()
+{
+    // Open settings to read path to files
+    QSettings settings(settingsFileName, QSettings::IniFormat);
+    QString path = settings.value(settingsKeyPath).toString();
+    if (path.isEmpty()) path = QDir::currentPath();
 
-void MainWindow::on_selectMarkButton_clicked() {
-    const auto fileName = QFileDialog::getOpenFileName(nullptr, "Выберите фото метки", QString(),
-                                                 QString("Изображения (*.png *.jpg)"));
-    markImage = cv::imread(fileName.toStdString().c_str(), cv::IMREAD_COLOR);
-    //ui.mapLabel->setPixmap(cvMatToQPixmap(image));
+    // Open map file
+    const auto fileName = QFileDialog::getOpenFileName(this, tr("Open map image"), path, QString("Pictures (*.png *.jpg); All files (*.*)"));
+    if (fileName.isEmpty()) {
+        ui.textBrowser->append("Operation cancelled");
+        return;
+    }
+
+    // Create Mat frame
+    mapImage = cv::imread(fileName.toStdString().c_str(), cv::IMREAD_COLOR);
+
+    // Add map on the scene
+    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(cvMatToQPixmap(mapImage));
+    scene.addItem(item);
+    ui.view->show();
+
+    // Save path into settings
+    settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
+}
+
+//--------------------------------------------------------------------------------------
+// Set map scale
+//--------------------------------------------------------------------------------------
+void MainWindow::on_setScaleButton_clicked()
+{
 
 }
 
-void MainWindow::on_findMarksButton_clicked() {
+
+
+//--------------------------------------------------------------------------------------
+// Open Nodes file
+//--------------------------------------------------------------------------------------
+void MainWindow::on_openNodesButton_clicked()
+{
+    // Open settings to read path to files
+    QSettings settings(settingsFileName, QSettings::IniFormat);
+    QString path = settings.value(settingsKeyPath).toString();
+    if (path.isEmpty()) path = QDir::currentPath();
+
+    // Open map file
+    const auto fileName = QFileDialog::getOpenFileName(this, tr("Open nodes file"), path);
+    if (fileName.isEmpty()) {
+        ui.textBrowser->append("Operation cancelled");
+        return;
+    }
+
+    // TODO Nodes file
+
+    // Save path into settings
+    settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
+}
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::on_selectNodeButton_clicked()
+{
+
+
+}
+
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::on_findNodeButton_clicked()
+{
     cv::Mat result;
     cv::Mat resultNormalized;
     //cv::Mat channels[3];
@@ -175,3 +191,6 @@ void MainWindow::on_findMarksButton_clicked() {
     cv::Canny(channels[1], frameResult, 5, 100);
     cv::imshow("2", frameResult);
 }
+
+
+

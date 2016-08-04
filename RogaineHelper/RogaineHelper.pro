@@ -5,34 +5,54 @@
 #-------------------------------------------------
 # Path to opencv must be added to the OPENCV_DIR variable.
 
+TEMPLATE = app
+
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+
+
+# -----------------------------------
+# Output directories and names
+# -----------------------------------
 TARGET = RogaineHelper
-TEMPLATE = app
 
-SOURCES += main.cpp\
-        MainWindow.cpp \
-    MapRecognaizer.cpp \
-    matToPixmap.cpp
+#Debug:  DESTDIR = ../bin_debug
+#Release:DESTDIR = ../bin_release
 
-HEADERS  += MainWindow.h \
-    MapRecognaizer.h \
-    matToPixmap.h
 
-FORMS    += MainWindow.ui
+# -----------------------------------
+# Headers and sources
+# -----------------------------------
 
+SOURCES += \
+            main.cpp \
+            MainWindow.cpp \
+            MapRecognizer.cpp \
+            OpencvQtTools.cpp
+HEADERS += \
+            MainWindow.h \
+            MapRecognizer.h \
+            OpencvQtTools.h
+FORMS += \
+            MainWindow.ui
+
+
+# -----------------------------------
+# Libraries
+# -----------------------------------
 INCLUDEPATH += $$(OPENCV_DIR)/build/include
+LIBS += -L$$(OPENCV_DIR)/build/x86/vc12/lib
 
-LIBS += -L$$(OPENCV_DIR)/build/x64/vc12/lib
 
-CONFIG(debug, debug|release) {
-    DESTDIR = ../bin_debug
-    LIBS += opencv_ts300d.lib \
-        opencv_world300d.lib
-} else {
-    DESTDIR = ../bin_release
-    LIBS += opencv_ts300.lib \
-    opencv_world300.lib
-}
+Debug:  LIBS += opencv_ts300d.lib \
+                opencv_world300d.lib
+
+Release:LIBS += opencv_ts300.lib \
+                opencv_world300.lib
+
+
+
+
+
