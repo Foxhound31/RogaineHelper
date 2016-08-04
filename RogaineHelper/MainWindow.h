@@ -43,6 +43,21 @@ private:
     double scaleKmInPoint;
 
 
+    struct nodeForSolution {
+        int idxInTable;
+        int score;
+        double xKm;         // coordinates in kilometers
+        double yKm;         // coordinates in kilometers
+        int xMx10;         // coordinates in decades of meters
+        int yMx10;          // coordinates in decades of meters
+        double x;           // coordinates on scene
+        double y;           // coordinates on scene
+    };
+
+    QVector<nodeForSolution> nodesForSolution; // node numbers (scores)
+    QVector<int> solution; // indexes of items in nodesForSolution vector
+
+
     // OpenCv data for automatic node finder
     cv::Mat mapImage;
     cv::Mat markImage;

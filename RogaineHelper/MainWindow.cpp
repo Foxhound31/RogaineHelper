@@ -12,6 +12,7 @@
 #include "NodeEditorWidget.h"
 #include "MapRecognizer.h"
 #include "OpencvQtTools.h"
+#include "tsp.h"
 
 const QString settingsFileName = "RogaineHelper.ini";
 const QString settingsKeyPath = "filesPath";
@@ -194,73 +195,128 @@ void MainWindow::on_openNodesButton_clicked()
 //--------------------------------------------------------------------------------------
 void MainWindow::on_solveButton_clicked()
 {
-    if (ui.nodesTable->rowCount() < 2) {
+    on_clearEdges_clicked();
+
+    int scoreSln = 0;
+    int nodesSln = 0;
+    double distSln = 0;
+
+    QVector<int>  distMatrix; // distamces between nodes in decades of meters
+    QString       tspFileName = QDir::currentPath() + "/tspMatrix.tsp";
+
+    // fill vector with nodes checked for solve
+    nodesForSolution.clear();
+    for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
+        if (!((QCheckBox*)ui.nodesTable->cellWidget(i, 0))->isChecked()) {
+            continue;
+        }
+        nodeForSolution node;
+        node.idxInTable = i;
+        node.score = ui.nodesTable->item(i, 1)->text().toInt();
+        node.xKm = ui.nodesTable->item(i, 2)->text().toDouble();
+        node.yKm = ui.nodesTable->item(i, 3)->text().toDouble();
+        node.xMx10 = node.xKm * 100;
+        node.yMx10 = node.yKm * 100;
+        node.x = ui.nodesTable->item(i, 4)->text().toDouble();
+        node.y = ui.nodesTable->item(i, 5)->text().toDouble();
+        scoreSln += node.score / 10;
+        nodesForSolution.append(node);
+
+        qDebug() << node.xMx10 << node.yMx10;
+    }
+    nodesSln = nodesForSolution.count();
+
+    if (nodesSln < 2) {
         ui.textBrowser->append("Add at least two marks on the map");
         return;
     }
 
-    int nodesCnt =  ui.nodesTable->rowCount();
-    int nodesSln = 0;
-    int scoreSln = 0;
-    double distSln = 0;
-
-    QCheckBox * checkBox;
-    double nodeX1;
-    double nodeY1;
-    double nodeX2;
-    double nodeY2;
-    int tempDist;
 
     // Prepare matrix of distances
-    for (int i = 0; i < nodesCnt; i++) {
-        checkBox = (QCheckBox*)ui.nodesTable->cellWidget(i, 0);
-        if (checkBox->isChecked()) {
-            nodesSln++;
-            scoreSln += ui.nodesTable->item(i, 1)->text().toInt();
-
-            nodeX1 = ui.nodesTable->item(i, 2)->text().toDouble() * 1000;
-            nodeY1 = ui.nodesTable->item(i, 3)->text().toDouble() * 1000;
-
-            for (int j = 0; j < nodesCnt; j++) {
-                if (i != j) {
-                    checkBox = (QCheckBox*)ui.nodesTable->cellWidget(i, 0);
-                    if (checkBox->isChecked()) {
-                        nodeX2 = ui.nodesTable->item(i, 2)->text().toDouble() * 1000;
-                        nodeY2 = ui.nodesTable->item(i, 3)->text().toDouble() * 1000;
-
-                        tempDist = pow(((nodeX1-nodeX2)*(nodeX1-nodeX2))+((nodeY1-nodeY2)*(nodeY1-nodeY2)), 0.5);
-                    }
-                }
-                else {
-                    tempDist = 0;
-                }
+    for (int i = 0; i < nodesSln; i++) {
+        for (int j = 0; j < nodesSln; j++) {
+            if (i != j) {
+                distMatrix.append(pow(((nodesForSolution[i].xMx10 - nodesForSolution[j].xMx10)*(nodesForSolution[i].xMx10 - nodesForSolution[j].xMx10) +
+                                       (nodesForSolution[i].yMx10 - nodesForSolution[j].yMx10)*(nodesForSolution[i].yMx10 - nodesForSolution[j].yMx10)), 0.5));
+            }
+            else {
+                distMatrix.append(0);
             }
         }
     }
+    ui.textBrowser->append("Matrix ready for " + QString::number(nodesSln) + " nodes. Matrix size " + QString::number(distMatrix.count()));
+    qDebug() << distMatrix;
+
 
     // Check matrix (square, symmetrical)
-    for (int i = 0; i < nodesCnt; i++) {
-        if (dist(i,i) != 0) {
-            ui.textBrowser->append("Check matrix failed");
+    if (distMatrix.count() != nodesSln * nodesSln) {
+        ui.textBrowser->append("Check matrix failed - wrong nodes count");
+        return;
+    }
+    for (int i = 0; i < nodesSln; i++) {
+        if (distMatrix[i * nodesSln + i] != 0) {
+            ui.textBrowser->append("Check matrix failed - no zeros on diagonal");
             return;
         }
-        for (int j = i; j < nodesCnt; j++) {
-            if (dist(i,j) != dist(j,i)) {
-                ui.textBrowser->append("Check matrix failed");
+        for (int j = 0; j < nodesSln; j++) {
+            if (distMatrix[i * nodesSln + j] != distMatrix[j * nodesSln + i]) {
+                ui.textBrowser->append("Check matrix failed - not symmetrical");
                 return;
             }
         }
-    }
+    } 
 
     // Generate TSP file
+    ui.textBrowser->append("TSP file name: " + tspFileName);
+    try {
+        tspWriteTspFile(distMatrix, tspFileName);
+    }
+    catch (std::runtime_error& e) {
+        ui.textBrowser->append("TSP file genaration failed: " + QString::fromLocal8Bit(e.what()));
+        return;
+    }
+    ui.textBrowser->append("TSP file ready");
+
 
     // Solve
+    try {
+        solution = tspRoute(tspFileName);
+    }
+    catch (std::runtime_error& e) {
+        ui.textBrowser->append("TSP solving failed: " + QString::fromLocal8Bit(e.what()));
+        return;
+    }
+    if (solution.count() == 0) {
+        ui.textBrowser->append("Solution is empty");
+        return;
+    }
+    ui.textBrowser->append("TSP solution ready for " + QString::number(solution.count()) + " nodes");
+
+
+    // Show test solution
+    QString textSolution;
+    for (int i = 0; i < solution.count(); i++) {
+        textSolution += QString::number(nodesForSolution[solution[i]].score) + " -> ";
+    }
+    ui.textBrowser->append(textSolution);
+
 
     // Draw lines
-
+    QGraphicsLineItem * newLine;
+    for (int i = 0; i < solution.count() - 1; i++) {
+        newLine = new QGraphicsLineItem(nodesForSolution[solution[i]].x, nodesForSolution[solution[i]].y, nodesForSolution[solution[i+1]].x, nodesForSolution[solution[i+1]].y);
+        //newItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+        newLine->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        newLine->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        QPen newPen(Qt::blue);
+        newPen.setWidth(4);
+        newLine->setPen(newPen);
+        mapScene.addItem(newLine);
+        distSln += newLine->line().length() * scaleKmInPoint;
+    }
 
     // Calculate distance
-    ui.nodesLabel->setText(QString::number(nodesSln));
+    ui.nodesLabel->setText(QString::number(nodesForSolution.count()));
     ui.scoreLabel->setText(QString::number(scoreSln));
     ui.distanceLabel->setText(QString::number(distSln));
 }
@@ -299,7 +355,7 @@ void MainWindow::itemSelected(QGraphicsItem* item)
         QGraphicsEllipseItem *markItem = (QGraphicsEllipseItem*)item;
         for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
             if ((ui.nodesTable->item(i, 4)->text() == QString::number(markItem->rect().center().x())) &&
-                (ui.nodesTable->item(i, 5)->text() == QString::number(markItem->rect().center().y())))   {
+                    (ui.nodesTable->item(i, 5)->text() == QString::number(markItem->rect().center().y())))   {
 
                 ui.nodesTable->setCurrentCell(i, 1);
                 ui.textBrowser->append("Mark " + ui.nodesTable->item(i, 1)->text() + " selected");
@@ -323,7 +379,7 @@ void MainWindow::itemSelected(QGraphicsItem* item)
         // Calculate total len
         double totalLenKm = ((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint;
         ui.segmentDistKm->setText(QString::number(totalLenKm, 'g', 3));
-/*
+        /*
         QGraphicsLineItem * tmpLine;
         bool noLines = false;
         QGraphicsLineItem * currLine = (QGraphicsLineItem*)item;
@@ -414,6 +470,8 @@ void MainWindow::on_clearNodesButton_clicked()
     ui.nodesTable->setRowCount(0);
     ui.nodesTotalLabel->setText("0");
     ui.scoreTotalLabel->setText("0");
+
+    on_clearEdges_clicked();
 }
 
 //--------------------------------------------------------------------------------------
@@ -422,7 +480,7 @@ void MainWindow::on_clearNodesButton_clicked()
 void MainWindow::on_clearEdges_clicked()
 {
     foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsRectItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::blue) {
+        if( item->type() == QGraphicsLineItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::blue) {
             mapScene.removeItem(item);
             delete item;
         }
@@ -543,8 +601,8 @@ void MainWindow::on_findNodeButton_clicked()
             radius*2,   // Minimum distance between the centers of the detected circles
             radius*0.8, // the higher threshold of the two passed to the Canny edge detector (the lower one is twice smaller)
             20,         // the accumulator threshold for the circle centers at the detection stage. The smaller it is,
-                        // the more false circles may be detected. Circles,
-                        // corresponding to the larger accumulator values, will be returned first
+            // the more false circles may be detected. Circles,
+            // corresponding to the larger accumulator values, will be returned first
             radius*0.8, radius*1.2); // min and max radius
     cv::Mat mapImage2;
     cv::cvtColor(channels[1], mapImage2, cv::COLOR_GRAY2BGR);
@@ -585,7 +643,6 @@ void MainWindow::on_findNodeButton_clicked()
 //            ui->textBrowser->append("Operation is cancelled");
 //            return;
 //        }
-
 
 
 

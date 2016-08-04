@@ -1,5 +1,5 @@
-#ifndef TSP
-#define TSP
+#ifndef TSP_H
+#define TSP_H
 #include <QVector>
 
 // Функции для решения замкнутой задачи коммивояжера с помощью программы concorde
@@ -17,5 +17,5 @@ void tspWriteTspFile(const QVector<int>& matrix, const QString& tspFileName);
 // Функция возвращает вектор номеров точек в порядке обхода.
 QVector<int> tspRoute(const QString& tspFileName);
 
-#endif // TSP
+#endif // TSP_H
 
