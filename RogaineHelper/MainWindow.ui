@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>934</width>
-    <height>678</height>
+    <width>1066</width>
+    <height>730</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
         <property name="minimumSize">
          <size>
           <width>160</width>
-          <height>100</height>
+          <height>80</height>
          </size>
         </property>
         <property name="font">
@@ -72,14 +72,64 @@
           <string>Open</string>
          </property>
         </widget>
+        <widget class="QDoubleSpinBox" name="scaleSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>50</y>
+           <width>62</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="decimals">
+          <number>3</number>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_5">
+         <property name="geometry">
+          <rect>
+           <x>28</x>
+           <y>46</y>
+           <width>61</width>
+           <height>26</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Distance
+for scale (km)</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="nodesGroupBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>100</height>
+          <height>330</height>
          </size>
         </property>
         <property name="font">
@@ -93,7 +143,7 @@
         </property>
         <widget class="QPushButton" name="findNodeButton">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -115,7 +165,7 @@
         </widget>
         <widget class="QPushButton" name="selectNodeButton">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -133,81 +183,6 @@
          </property>
          <property name="text">
           <string>Select</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="addNodeButton">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>70</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Add</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="delNodeButton">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>70</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Del</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="moveNodeButton">
-         <property name="geometry">
-          <rect>
-           <x>110</x>
-           <y>70</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Move</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
          </property>
         </widget>
         <widget class="QPushButton" name="openNodesButton">
@@ -248,14 +223,169 @@
           <string>Save</string>
          </property>
         </widget>
+        <widget class="QPushButton" name="addNodeButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Add</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
+         <property name="default">
+          <bool>false</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="clearNodesButton">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>70</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
+        <widget class="QTableWidget" name="nodesTable">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>141</width>
+           <height>191</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_7">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>290</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Total nodes</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="nodesTotalLabel">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>290</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_8">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>300</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Total score</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="scoreTotalLabel">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>300</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="obstaclesGroupBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>100</height>
+          <height>80</height>
          </size>
         </property>
         <property name="font">
@@ -271,10 +401,13 @@
       </item>
       <item>
        <widget class="QGroupBox" name="resultsGroupBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>100</height>
+          <height>80</height>
          </size>
         </property>
         <property name="font">
@@ -293,7 +426,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
+           <y>50</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -313,7 +446,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>70</y>
+           <y>60</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -333,7 +466,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>50</y>
+           <y>40</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -353,8 +486,8 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>50</y>
-           <width>31</width>
+           <y>40</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -366,15 +499,15 @@
           </font>
          </property>
          <property name="text">
-          <string>000</string>
+          <string>0</string>
          </property>
         </widget>
         <widget class="QLabel" name="scoreLabel">
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>60</y>
-           <width>31</width>
+           <y>50</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -386,15 +519,15 @@
           </font>
          </property>
          <property name="text">
-          <string>000</string>
+          <string>0</string>
          </property>
         </widget>
         <widget class="QLabel" name="distanceLabel">
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>70</y>
-           <width>31</width>
+           <y>60</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -406,7 +539,7 @@
           </font>
          </property>
          <property name="text">
-          <string>000</string>
+          <string>0</string>
          </property>
         </widget>
         <widget class="QPushButton" name="solveButton">
@@ -428,14 +561,36 @@
           <string>Solve</string>
          </property>
         </widget>
+        <widget class="QPushButton" name="clearEdges">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>20</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="distanceGroupBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>100</width>
-          <height>100</height>
+          <height>80</height>
          </size>
         </property>
         <property name="font">
@@ -463,7 +618,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Measure</string>
+          <string>Add</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -514,15 +669,15 @@
           </font>
          </property>
          <property name="text">
-          <string>Kilometers</string>
+          <string>Total (km)</string>
          </property>
         </widget>
-        <widget class="QLabel" name="distanceLabel_2">
+        <widget class="QLabel" name="totalDistKm">
          <property name="geometry">
           <rect>
-           <x>70</x>
+           <x>80</x>
            <y>50</y>
-           <width>31</width>
+           <width>71</width>
            <height>16</height>
           </rect>
          </property>
@@ -534,7 +689,47 @@
           </font>
          </property>
          <property name="text">
-          <string>000</string>
+          <string>0</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_6">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>61</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Segment (km)</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="segmentDistKm">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>40</y>
+           <width>71</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>7</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0</string>
          </property>
         </widget>
        </widget>
@@ -555,9 +750,9 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="7,0,1">
       <property name="spacing">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -572,99 +767,20 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QGraphicsView" name="view"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="zoomInButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="zoomOutButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>-</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="fitButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>25</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Fit</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QFrame" name="mapFrame">
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>300</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="Line" name="line">
@@ -690,13 +806,6 @@
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="QLabel" name="mapLabel">
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>

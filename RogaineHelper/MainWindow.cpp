@@ -2,11 +2,14 @@
 #include <cmath>
 
 #include "MainWindow.h"
+#include <QMessageBox>
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
 #include <QGraphicsItem>
 #include <QDir>
+#include "NodeEditorScene.h"
+#include "NodeEditorWidget.h"
 #include "MapRecognizer.h"
 #include "OpencvQtTools.h"
 
@@ -16,18 +19,44 @@ const QString settingsKeyPath = "filesPath";
 
 //--------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------
-MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget* parent) :
+    QMainWindow(parent),
+    mapScene(this),
+    mapWidget(this),
+    scaleKmInPoint(1.0)
 {
     ui.setupUi(this);
 
     // Connect view and scene
-    ui.view->setScene(&scene);
+    mapWidget.setScene(&mapScene);
+
+    // Put NodeEditorWidget on the form
+    QHBoxLayout *newLayout = new QHBoxLayout();
+    newLayout->setMargin(0);
+    newLayout->setSpacing(0);
+    ui.mapFrame->setLayout(newLayout);
+    newLayout->addWidget(&mapWidget);
+
 
     // Configure scene and connect singnals-slots for it
-    scene.setSceneRect(QRectF(0, 0, 5000, 5000));
-    //connect(nodeEditorScene, SIGNAL(itemInserted(NodeItem*)), this, SLOT(itemInserted(NodeItem*)));
-    //connect(nodeEditorScene, SIGNAL(itemSelected(QGraphicsItem*)), this, SLOT(itemSelected(QGraphicsItem*)));
+    connect(&mapScene, SIGNAL(itemInserted(QGraphicsItem*)), this, SLOT(itemInserted(QGraphicsItem*)));
+    connect(&mapScene, SIGNAL(itemSelected(QGraphicsItem*)), this, SLOT(itemSelected(QGraphicsItem*)));
 
+    // Mark table
+    ui.nodesTable->setColumnCount(6);
+    ui.nodesTable->setColumnWidth(0, 20);
+    ui.nodesTable->setColumnWidth(1, 30);
+    ui.nodesTable->setColumnWidth(2, 30);
+    ui.nodesTable->setColumnWidth(3, 30);
+    ui.nodesTable->setColumnWidth(4, 30);
+    ui.nodesTable->setColumnWidth(5, 30);
+    QStringList headerList;
+    headerList.append(QString(""));
+    headerList.append(QString("№"));
+    headerList.append(QString("X"));
+    headerList.append(QString("Y"));
+    ui.nodesTable->setHorizontalHeaderLabels(headerList);
+    ui.nodesTable->verticalHeader()->setVisible(false);
 
     // Check settings
     QSettings settings(settingsFileName, QSettings::IniFormat);
@@ -58,12 +87,23 @@ void MainWindow::on_openMapButton_clicked()
     mapImage = cv::imread(fileName.toStdString().c_str(), cv::IMREAD_COLOR);
 
     // Add map on the scene
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(cvMatToQPixmap(mapImage));
-    scene.addItem(item);
-    ui.view->show();
+    QGraphicsPixmapItem* newItem = new QGraphicsPixmapItem(cvMatToQPixmap(mapImage));
+    newItem->setPos(0,0);
+    newItem->setZValue(0);
+    newItem->setAcceptedMouseButtons(0);
+    newItem->setTransformationMode(Qt::SmoothTransformation);
+    mapScene.addItem(newItem);
+    mapScene.setSceneRect(newItem->boundingRect());
+    mapWidget.show();
 
     // Save path into settings
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
+
+    ui.nodesGroupBox->setEnabled(true);
+    ui.obstaclesGroupBox->setEnabled(true);
+    ui.resultsGroupBox->setEnabled(true);
+    ui.distanceGroupBox->setEnabled(true);
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -71,8 +111,58 @@ void MainWindow::on_openMapButton_clicked()
 //--------------------------------------------------------------------------------------
 void MainWindow::on_setScaleButton_clicked()
 {
+    // find two and only two squares
+    QPointF begin, end; // in scene coordinates
+    bool moreThanTwoPoints = false; // if there are more than two square marks on the map
 
+    foreach(QGraphicsItem *item, mapScene.items()) {
+        if( item->type() == QGraphicsRectItem::Type) {
+            if (begin.isNull()) {
+                begin = item->mapToScene(item->boundingRect().center());
+            }
+            else if (end.isNull()) {
+                end = item->mapToScene(item->boundingRect().center());
+            }
+            else {
+                moreThanTwoPoints = true;
+            }
+        }
+    }
+
+    if (moreThanTwoPoints || begin.isNull() || end.isNull()) {
+        QMessageBox::critical(this,
+                              tr("Error"),
+                              tr("Only two marks should be on the map to measure scale"),
+                              QMessageBox::Ok);
+        return;
+    }
+
+    // Save result
+    scaleKmInPoint = ui.scaleSpinBox->value() / QLineF(begin, end).length();
+    ui.textBrowser->append("Scene " + QString::number(QLineF(begin, end).length()) +
+                           " points is " + ui.scaleSpinBox->text() + " kilometers");
+
+    ui.textBrowser->append("Map height " + QString::number(mapScene.height()) +
+                           " points, width " + QString::number(mapScene.width()) + " points");
+
+    // Update scene scale
+    double newHeight = mapScene.height() * scaleKmInPoint;
+    double newWidth = mapScene.width() * scaleKmInPoint;
+    ui.textBrowser->append("Map height " + QString::number(newHeight) +
+                           " km, width " + QString::number(newWidth) + " km");
+
+    //mapScene.setSceneRect(0, 0, newWidth, newHeight);
 }
+
+
+//--------------------------------------------------------------------------------------
+// Scale changed
+//--------------------------------------------------------------------------------------
+void MainWindow::on_scaleSpinBox_editingFinished()
+{
+    on_setScaleButton_clicked();
+}
+
 
 
 
@@ -99,6 +189,301 @@ void MainWindow::on_openNodesButton_clicked()
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
 }
 
+//--------------------------------------------------------------------------------------
+// Solve
+//--------------------------------------------------------------------------------------
+void MainWindow::on_solveButton_clicked()
+{
+    if (ui.nodesTable->rowCount() < 2) {
+        ui.textBrowser->append("Add at least two marks on the map");
+        return;
+    }
+
+    int nodesCnt =  ui.nodesTable->rowCount();
+    int nodesSln = 0;
+    int scoreSln = 0;
+    double distSln = 0;
+
+    QCheckBox * checkBox;
+    double nodeX1;
+    double nodeY1;
+    double nodeX2;
+    double nodeY2;
+    int tempDist;
+
+    // Prepare matrix of distances
+    for (int i = 0; i < nodesCnt; i++) {
+        checkBox = (QCheckBox*)ui.nodesTable->cellWidget(i, 0);
+        if (checkBox->isChecked()) {
+            nodesSln++;
+            scoreSln += ui.nodesTable->item(i, 1)->text().toInt();
+
+            nodeX1 = ui.nodesTable->item(i, 2)->text().toDouble() * 1000;
+            nodeY1 = ui.nodesTable->item(i, 3)->text().toDouble() * 1000;
+
+            for (int j = 0; j < nodesCnt; j++) {
+                if (i != j) {
+                    checkBox = (QCheckBox*)ui.nodesTable->cellWidget(i, 0);
+                    if (checkBox->isChecked()) {
+                        nodeX2 = ui.nodesTable->item(i, 2)->text().toDouble() * 1000;
+                        nodeY2 = ui.nodesTable->item(i, 3)->text().toDouble() * 1000;
+
+                        tempDist = pow(((nodeX1-nodeX2)*(nodeX1-nodeX2))+((nodeY1-nodeY2)*(nodeY1-nodeY2)), 0.5);
+                    }
+                }
+                else {
+                    tempDist = 0;
+                }
+            }
+        }
+    }
+
+    // Check matrix (square, symmetrical)
+    for (int i = 0; i < nodesCnt; i++) {
+        if (dist(i,i) != 0) {
+            ui.textBrowser->append("Check matrix failed");
+            return;
+        }
+        for (int j = i; j < nodesCnt; j++) {
+            if (dist(i,j) != dist(j,i)) {
+                ui.textBrowser->append("Check matrix failed");
+                return;
+            }
+        }
+    }
+
+    // Generate TSP file
+
+    // Solve
+
+    // Draw lines
+
+
+    // Calculate distance
+    ui.nodesLabel->setText(QString::number(nodesSln));
+    ui.scoreLabel->setText(QString::number(scoreSln));
+    ui.distanceLabel->setText(QString::number(distSln));
+}
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::on_nodesTable_cellChanged(int row, int column)
+{
+    // if score changed
+    if (column == 1 && ui.nodesTable->rowCount()) {
+        // summ of scores
+        int sumScore = 0;
+        for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
+            sumScore += ui.nodesTable->item(i, 1)->text().toInt() / 10;
+        }
+        ui.scoreTotalLabel->setText(QString::number(sumScore));
+        ui.nodesTotalLabel->setText(QString::number(ui.nodesTable->rowCount()));
+    }
+}
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::itemSelected(QGraphicsItem* item)
+{
+    if (!item)
+        return;
+
+    if (item->type() == QGraphicsEllipseItem::Type) {
+        QGraphicsEllipseItem *markItem = (QGraphicsEllipseItem*)item;
+        for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
+            if ((ui.nodesTable->item(i, 4)->text() == QString::number(markItem->rect().center().x())) &&
+                (ui.nodesTable->item(i, 5)->text() == QString::number(markItem->rect().center().y())))   {
+
+                ui.nodesTable->setCurrentCell(i, 1);
+                ui.textBrowser->append("Mark " + ui.nodesTable->item(i, 1)->text() + " selected");
+
+                // if no number - prepare to edit
+                if (ui.nodesTable->item(i, 1)->text() == "0") {
+                    ui.nodesTable->editItem(ui.nodesTable->item(i, 1));
+                }
+            }
+        }
+
+        ui.nodesTable->sortItems(0);
+    }
+
+    if (item->type() == QGraphicsRectItem::Type) {
+        ui.textBrowser->append("Track item");
+    }
+
+    if (item->type() == QGraphicsLineItem::Type) {
+
+        // Calculate total len
+        double totalLenKm = ((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint;
+        ui.segmentDistKm->setText(QString::number(totalLenKm, 'g', 3));
+/*
+        QGraphicsLineItem * tmpLine;
+        bool noLines = false;
+        QGraphicsLineItem * currLine = (QGraphicsLineItem*)item;
+
+        currLine->set
+
+        while (noLines == false) {
+            foreach(QGraphicsItem *item, mapScene.items()){
+                if(item->type() == QGraphicsLineItem::Type) {
+                    tmpLine = (QGraphicsLineItem*)item;
+                    if (tmpLine->pen().color() == Qt::black) {
+                        if (tmpLine->line().p1() == currLine->line().p1() || tmpLine->line().p2() == currLine->line().p1()) {
+                            currLine = tmpLine;
+                            totalLenKm += currLine->line().length() * scaleKmInPoint;
+                        }
+                    }
+                }
+            }
+        }
+*/
+    }
+}
+
+
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::itemInserted(QGraphicsItem*item)
+{
+    if (item->type() == QGraphicsEllipseItem::Type) {
+        QGraphicsEllipseItem *markItem = (QGraphicsEllipseItem*)item;
+        ui.textBrowser->append("New mark item at " +
+                               QString::number(markItem->rect().center().x()) + ", " +
+                               QString::number(markItem->rect().center().y()) + " (" +
+                               QString::number(markItem->rect().center().x() * scaleKmInPoint) + ", " +
+                               QString::number(markItem->rect().center().y() * scaleKmInPoint) + "km)");
+
+        // add free row
+        ui.nodesTable->setRowCount(ui.nodesTable->rowCount() + 1);
+        int freeRow = ui.nodesTable->rowCount() - 1;
+
+        QCheckBox * newCheckBox = new QCheckBox();
+        newCheckBox->setChecked(true);
+        ui.nodesTable->setCellWidget(freeRow, 0, newCheckBox);
+
+        QTableWidgetItem * newItem;
+        newItem =  new QTableWidgetItem("0");
+        ui.nodesTable->setItem(freeRow, 1, newItem);
+        newItem =  new QTableWidgetItem(QString::number(markItem->rect().center().x() * scaleKmInPoint, 'g', 3));
+        ui.nodesTable->setItem(freeRow, 2, newItem);
+        newItem =  new QTableWidgetItem(QString::number(markItem->rect().center().y() * scaleKmInPoint, 'g', 3));
+        ui.nodesTable->setItem(freeRow, 3, newItem);
+
+        newItem =  new QTableWidgetItem(QString::number(markItem->rect().center().x()));
+        ui.nodesTable->setItem(freeRow, 4, newItem);
+        newItem =  new QTableWidgetItem(QString::number(markItem->rect().center().y()));
+        ui.nodesTable->setItem(freeRow, 5, newItem);
+
+        ui.nodesTable->sortItems(0);
+
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------
+// Del button
+//--------------------------------------------------------------------------------------
+void MainWindow::keyPressEvent(QKeyEvent *ev)
+{
+    if (ev->key() == Qt::Key_Delete) {
+        mapScene.deleteSelectedItems();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------
+// Clear nodes - circlrs
+//--------------------------------------------------------------------------------------
+void MainWindow::on_clearNodesButton_clicked()
+{
+    foreach(QGraphicsItem *item, mapScene.items()) {
+        if( item->type() == QGraphicsEllipseItem::Type) {
+            mapScene.removeItem(item);
+            delete item;
+        }
+    }
+    ui.nodesTable->clear();
+    ui.nodesTable->setRowCount(0);
+    ui.nodesTotalLabel->setText("0");
+    ui.scoreTotalLabel->setText("0");
+}
+
+//--------------------------------------------------------------------------------------
+// Clear solution - blue lines
+//--------------------------------------------------------------------------------------
+void MainWindow::on_clearEdges_clicked()
+{
+    foreach(QGraphicsItem *item, mapScene.items()) {
+        if( item->type() == QGraphicsRectItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::blue) {
+            mapScene.removeItem(item);
+            delete item;
+        }
+    }
+    ui.nodesLabel->setText("0");
+    ui.scoreLabel->setText("0");
+    ui.distanceLabel->setText("0");
+}
+
+//--------------------------------------------------------------------------------------
+// Clear milestones - rects and black lines
+//--------------------------------------------------------------------------------------
+void MainWindow::on_clearButton_clicked()
+{
+    foreach(QGraphicsItem *item, mapScene.items()) {
+        if( item->type() == QGraphicsRectItem::Type || (item->type() == QGraphicsLineItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::black)) {
+            mapScene.removeItem(item);
+            delete item;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------
+// Set nodes
+//--------------------------------------------------------------------------------------
+void MainWindow::on_addNodeButton_toggled(bool checked)
+{
+    if (checked) {
+        ui.measureButton->setChecked(false);
+        mapScene.setClickMode(CLICKMODE_ADD_CIRCLE);
+    }
+    else {
+        mapScene.setClickMode(CLICKMODE_SELECT);
+    }
+}
+
+//--------------------------------------------------------------------------------------
+// Set milestones
+//--------------------------------------------------------------------------------------
+void MainWindow::on_measureButton_toggled(bool checked)
+{
+    if (checked) {
+        ui.addNodeButton->setChecked(false);
+        mapScene.setClickMode(CLICKMODE_ADD_RECT);
+    }
+    else {
+        mapScene.setClickMode(CLICKMODE_SELECT);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -109,10 +494,7 @@ void MainWindow::on_openNodesButton_clicked()
 //--------------------------------------------------------------------------------------
 void MainWindow::on_selectNodeButton_clicked()
 {
-
-
 }
-
 
 //--------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------
@@ -191,6 +573,20 @@ void MainWindow::on_findNodeButton_clicked()
     cv::Canny(channels[1], frameResult, 5, 100);
     cv::imshow("2", frameResult);
 }
+
+
+
+
+//        int ret = QMessageBox::warning(this,
+//                                       tr("Bindings debug"),
+//                                       tr("Do you want to delete all binding records? "),
+//                                       QMessageBox::Yes|QMessageBox::No);
+//        if (ret != QMessageBox::Yes) {
+//            ui->textBrowser->append("Operation is cancelled");
+//            return;
+//        }
+
+
 
 
 
