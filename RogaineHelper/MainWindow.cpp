@@ -194,11 +194,11 @@ void MainWindow::on_saveNodesButton_clicked()
     for (int i = 0; i < rowCount; ++i) {
         QCheckBox* checkBox = static_cast<QCheckBox*>(ui.nodesTable->cellWidget(i, 0));
         stream << checkBox->isChecked();
-        stream << ui.nodesTable->itemAt(i, 1)->text().toInt();
-        stream << ui.nodesTable->itemAt(i, 2)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 3)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 4)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 5)->text().toDouble();
+        stream << ui.nodesTable->item(i, 1)->text();
+        stream << ui.nodesTable->item(i, 2)->text();
+        stream << ui.nodesTable->item(i, 3)->text();
+        stream << ui.nodesTable->item(i, 4)->text();
+        stream << ui.nodesTable->item(i, 5)->text();
     }
 
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
@@ -232,6 +232,7 @@ void MainWindow::on_openNodesButton_clicked()
     int rowCount;
     stream >> scaleKmInPoint;
     stream >> rowCount;
+
     ui.nodesTable->setRowCount(rowCount);
     for (int i = 0; i < rowCount; ++i) {
         bool isChecked;
@@ -240,30 +241,23 @@ void MainWindow::on_openNodesButton_clicked()
         newCheckBox->setChecked(isChecked);
         ui.nodesTable->setCellWidget(i, 0, newCheckBox);
 
-        stream << ui.nodesTable->itemAt(i, 1)->text().toInt();
-        stream << ui.nodesTable->itemAt(i, 2)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 3)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 4)->text().toDouble();
-        stream << ui.nodesTable->itemAt(i, 5)->text().toDouble();
-
         QTableWidgetItem * newItem;
-        int intNumber;
-        double doubleNumber;
-        stream >> intNumber;
-        newItem =  new QTableWidgetItem(QString::number(intNumber));
+        QString string;
+        stream >> string;
+        newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 1, newItem);
-        stream >> doubleNumber;
-        newItem =  new QTableWidgetItem(QString::number(doubleNumber, 'g', 3));
+        stream >> string;
+        newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 2, newItem);
-        stream >> doubleNumber;
-        newItem =  new QTableWidgetItem(QString::number(doubleNumber, 'g', 3));
+        stream >> string;
+        newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 3, newItem);
 
-        stream >> doubleNumber;
-        newItem =  new QTableWidgetItem(QString::number(doubleNumber));
+        stream >> string;
+        newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 4, newItem);
-        stream >> doubleNumber;
-        newItem =  new QTableWidgetItem(QString::number(doubleNumber));
+        stream >> string;
+        newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 5, newItem);
     }
 
@@ -411,7 +405,8 @@ void MainWindow::on_nodesTable_cellChanged(int row, int column)
         // summ of scores
         int sumScore = 0;
         for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
-            sumScore += ui.nodesTable->item(i, 1)->text().toInt() / 10;
+            if (ui.nodesTable->item(i, 1))
+                sumScore += ui.nodesTable->item(i, 1)->text().toInt() / 10;
         }
         ui.scoreTotalLabel->setText(QString::number(sumScore));
         ui.nodesTotalLabel->setText(QString::number(ui.nodesTable->rowCount()));
