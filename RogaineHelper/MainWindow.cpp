@@ -49,8 +49,10 @@ MainWindow::MainWindow(QWidget* parent) :
     ui.nodesTable->setColumnWidth(1, 30);
     ui.nodesTable->setColumnWidth(2, 30);
     ui.nodesTable->setColumnWidth(3, 30);
-    ui.nodesTable->setColumnWidth(4, 30);
-    ui.nodesTable->setColumnWidth(5, 30);
+    ui.nodesTable->setColumnWidth(4, 0);
+    ui.nodesTable->setColumnWidth(5, 0);
+    ui.nodesTable->setContentsMargins(1,1,1,1);
+
     QStringList headerList;
     headerList.append(QString(""));
     headerList.append(QString("№"));
@@ -100,10 +102,9 @@ void MainWindow::on_openMapButton_clicked()
     // Save path into settings
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
 
-    ui.nodesGroupBox->setEnabled(true);
-    ui.obstaclesGroupBox->setEnabled(true);
-    ui.resultsGroupBox->setEnabled(true);
-    ui.distanceGroupBox->setEnabled(true);
+    ui.setScaleButton->setEnabled(true);
+    ui.scaleDistLabel->setEnabled(true);
+    ui.scaleSpinBox->setEnabled(true);
 
 }
 
@@ -153,6 +154,9 @@ void MainWindow::on_setScaleButton_clicked()
                            " km, width " + QString::number(newWidth) + " km");
 
     //mapScene.setSceneRect(0, 0, newWidth, newHeight);
+
+    ui.nodesGroupBox->setEnabled(true);
+    ui.distanceGroupBox->setEnabled(true);
 }
 
 
@@ -336,7 +340,19 @@ void MainWindow::on_nodesTable_cellChanged(int row, int column)
         ui.nodesTotalLabel->setText(QString::number(ui.nodesTable->rowCount()));
     }
 }
+//--------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------
+void MainWindow::on_nodesTable_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+{
+    mapScene.clearSelection();
 
+    if (ui.nodesTable->item(currentRow, 4) && ui.nodesTable->item(currentRow, 5)) {
+        QGraphicsItem * item = mapScene.itemAt(ui.nodesTable->item(currentRow, 4)->text().toDouble(), ui.nodesTable->item(currentRow, 5)->text().toDouble(), QTransform());
+        if (item && item->type() == QGraphicsEllipseItem::Type) {
+            item->setSelected(true);
+        }
+    }
+}
 
 
 
@@ -348,6 +364,9 @@ void MainWindow::on_nodesTable_cellChanged(int row, int column)
 //--------------------------------------------------------------------------------------
 void MainWindow::itemSelected(QGraphicsItem* item)
 {
+    ui.segmentDistKm->setText("0");
+    ui.totalDistKm->setText("0");
+
     if (!item)
         return;
 
@@ -366,40 +385,20 @@ void MainWindow::itemSelected(QGraphicsItem* item)
                 }
             }
         }
-
-        ui.nodesTable->sortItems(0);
+        ui.nodesTable->sortItems(1);
     }
 
-    if (item->type() == QGraphicsRectItem::Type) {
-        ui.textBrowser->append("Track item");
+    if (item->type() == CustomRect::Type) {
+        ui.totalDistKm->setText(QString::number(((CustomRect*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
+    }
+
+    if (item->type() == CustomLine::Type) {
+        ui.segmentDistKm->setText(QString::number(((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint, 'g', 3));
+        ui.totalDistKm->setText(QString::number(((CustomRect*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
     }
 
     if (item->type() == QGraphicsLineItem::Type) {
-
-        // Calculate total len
-        double totalLenKm = ((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint;
-        ui.segmentDistKm->setText(QString::number(totalLenKm, 'g', 3));
-        /*
-        QGraphicsLineItem * tmpLine;
-        bool noLines = false;
-        QGraphicsLineItem * currLine = (QGraphicsLineItem*)item;
-
-        currLine->set
-
-        while (noLines == false) {
-            foreach(QGraphicsItem *item, mapScene.items()){
-                if(item->type() == QGraphicsLineItem::Type) {
-                    tmpLine = (QGraphicsLineItem*)item;
-                    if (tmpLine->pen().color() == Qt::black) {
-                        if (tmpLine->line().p1() == currLine->line().p1() || tmpLine->line().p2() == currLine->line().p1()) {
-                            currLine = tmpLine;
-                            totalLenKm += currLine->line().length() * scaleKmInPoint;
-                        }
-                    }
-                }
-            }
-        }
-*/
+        ui.segmentDistKm->setText(QString::number(((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint, 'g', 3));
     }
 }
 
@@ -437,7 +436,7 @@ void MainWindow::itemInserted(QGraphicsItem*item)
         newItem =  new QTableWidgetItem(QString::number(markItem->rect().center().y()));
         ui.nodesTable->setItem(freeRow, 5, newItem);
 
-        ui.nodesTable->sortItems(0);
+        ui.nodesTable->sortItems(1);
 
     }
 }
@@ -460,18 +459,19 @@ void MainWindow::keyPressEvent(QKeyEvent *ev)
 //--------------------------------------------------------------------------------------
 void MainWindow::on_clearNodesButton_clicked()
 {
-    foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsEllipseItem::Type) {
-            mapScene.removeItem(item);
-            delete item;
-        }
-    }
     ui.nodesTable->clear();
     ui.nodesTable->setRowCount(0);
     ui.nodesTotalLabel->setText("0");
     ui.scoreTotalLabel->setText("0");
 
     on_clearEdges_clicked();
+
+    foreach(QGraphicsItem *item, mapScene.items()) {
+        if( item->type() == QGraphicsEllipseItem::Type) {
+            mapScene.removeItem(item);
+            delete item;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------
@@ -643,6 +643,8 @@ void MainWindow::on_findNodeButton_clicked()
 //            ui->textBrowser->append("Operation is cancelled");
 //            return;
 //        }
+
+
 
 
 

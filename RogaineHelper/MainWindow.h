@@ -31,6 +31,8 @@ private slots:
     void itemSelected(QGraphicsItem*item);
     void itemInserted(QGraphicsItem*item);
 
+    void on_nodesTable_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
+
 protected:
     void keyPressEvent(QKeyEvent *ev);
 
