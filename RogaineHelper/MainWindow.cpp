@@ -195,6 +195,7 @@ void MainWindow::on_saveNodesButton_clicked()
 //--------------------------------------------------------------------------------------
 void MainWindow::on_openNodesButton_clicked()
 {
+
     // Open settings to read path to files
     QSettings settings(settingsFileName, QSettings::IniFormat);
     QString path = settings.value(settingsKeyPath).toString();
@@ -213,6 +214,10 @@ void MainWindow::on_openNodesButton_clicked()
         ui.textBrowser->append("Operation failed");
         return;
     }
+
+    // Clear prev nodes
+    on_clearNodesButton_clicked();
+    on_clearEdges_clicked();
 
     QDataStream stream(&file);
     int rowCount;
@@ -246,6 +251,28 @@ void MainWindow::on_openNodesButton_clicked()
         newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 5, newItem);
     }
+
+
+
+
+    // Add to scene
+    for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
+        int radius = 20;
+
+        // Draw circle
+        QGraphicsEllipseItem* newItem = new QGraphicsEllipseItem( ui.nodesTable->item(i, 4)->text().toDouble()-radius, ui.nodesTable->item(i, 5)->text().toDouble()-radius, 2*radius, 2*radius);
+        //newItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+        newItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        newItem->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        newItem->setZValue(1);
+
+        QPen newPen(Qt::blue);
+        newPen.setWidth(5);
+        newItem->setPen(newPen);
+
+        mapScene.addItem(newItem);
+    }
+
 
     // Save path into settings
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
@@ -491,7 +518,6 @@ void MainWindow::itemInserted(QGraphicsItem*item)
         ui.nodesTable->setItem(freeRow, 5, newItem);
 
         ui.nodesTable->sortItems(1);
-
     }
 }
 

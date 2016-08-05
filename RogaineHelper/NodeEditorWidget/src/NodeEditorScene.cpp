@@ -144,6 +144,7 @@ void NodeEditorScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent)
 
     if (activeItem->type() == QGraphicsLineItem::Type ||
         activeItem->type() == QGraphicsRectItem::Type ||
+        activeItem->type() == QGraphicsEllipseItem::Type ||
         activeItem->type() == CustomLine::Type ||
         activeItem->type() == CustomRect::Type ) {
 
