@@ -169,6 +169,40 @@ void MainWindow::on_scaleSpinBox_editingFinished()
 
 
 
+//--------------------------------------------------------------------------------------
+// Save Nodes file
+//--------------------------------------------------------------------------------------
+void MainWindow::on_saveNodesButton_clicked()
+{
+    // Open settings to read path to files
+    QSettings settings(settingsFileName, QSettings::IniFormat);
+    QString path = settings.value(settingsKeyPath).toString();
+    if (path.isEmpty())
+        path = QDir::currentPath();
+
+    QString	fileName = QFileDialog::getSaveFileName(nullptr, "Save nodes", path);
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        ui.textBrowser->append("Operation failed");
+        return;
+    }
+
+    QDataStream stream(&file);
+    int rowCount = ui.nodesTable->rowCount();
+    stream << scaleKmInPoint;
+    stream << rowCount;
+    for (int i = 0; i < rowCount; ++i) {
+        QCheckBox* checkBox = static_cast<QCheckBox*>(ui.nodesTable->cellWidget(i, 0));
+        stream << checkBox->isChecked();
+        stream << ui.nodesTable->itemAt(i, 1)->text().toInt();
+        stream << ui.nodesTable->itemAt(i, 2)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 3)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 4)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 5)->text().toDouble();
+    }
+
+    settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
+}
 
 //--------------------------------------------------------------------------------------
 // Open Nodes file
@@ -178,7 +212,8 @@ void MainWindow::on_openNodesButton_clicked()
     // Open settings to read path to files
     QSettings settings(settingsFileName, QSettings::IniFormat);
     QString path = settings.value(settingsKeyPath).toString();
-    if (path.isEmpty()) path = QDir::currentPath();
+    if (path.isEmpty())
+        path = QDir::currentPath();
 
     // Open map file
     const auto fileName = QFileDialog::getOpenFileName(this, tr("Open nodes file"), path);
@@ -187,7 +222,50 @@ void MainWindow::on_openNodesButton_clicked()
         return;
     }
 
-    // TODO Nodes file
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        ui.textBrowser->append("Operation failed");
+        return;
+    }
+
+    QDataStream stream(&file);
+    int rowCount;
+    stream >> scaleKmInPoint;
+    stream >> rowCount;
+    ui.nodesTable->setRowCount(rowCount);
+    for (int i = 0; i < rowCount; ++i) {
+        bool isChecked;
+        stream >> isChecked;
+        QCheckBox * newCheckBox = new QCheckBox();
+        newCheckBox->setChecked(isChecked);
+        ui.nodesTable->setCellWidget(i, 0, newCheckBox);
+
+        stream << ui.nodesTable->itemAt(i, 1)->text().toInt();
+        stream << ui.nodesTable->itemAt(i, 2)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 3)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 4)->text().toDouble();
+        stream << ui.nodesTable->itemAt(i, 5)->text().toDouble();
+
+        QTableWidgetItem * newItem;
+        int intNumber;
+        double doubleNumber;
+        stream >> intNumber;
+        newItem =  new QTableWidgetItem(QString::number(intNumber));
+        ui.nodesTable->setItem(i, 1, newItem);
+        stream >> doubleNumber;
+        newItem =  new QTableWidgetItem(QString::number(doubleNumber, 'g', 3));
+        ui.nodesTable->setItem(i, 2, newItem);
+        stream >> doubleNumber;
+        newItem =  new QTableWidgetItem(QString::number(doubleNumber, 'g', 3));
+        ui.nodesTable->setItem(i, 3, newItem);
+
+        stream >> doubleNumber;
+        newItem =  new QTableWidgetItem(QString::number(doubleNumber));
+        ui.nodesTable->setItem(i, 4, newItem);
+        stream >> doubleNumber;
+        newItem =  new QTableWidgetItem(QString::number(doubleNumber));
+        ui.nodesTable->setItem(i, 5, newItem);
+    }
 
     // Save path into settings
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
@@ -638,6 +716,8 @@ void MainWindow::on_findNodeButton_clicked()
 //            ui->textBrowser->append("Operation is cancelled");
 //            return;
 //        }
+
+
 
 
 

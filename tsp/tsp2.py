@@ -12,7 +12,7 @@ import Tkinter as Tk
 import ttk
 from pytsp import atsp_tsp, dumps_matrix
 
-pointsfilename = "points2.txt"
+pointsfilename = "points.txt"
 imagefilename = "mr2014_map.png"
 
 
@@ -177,7 +177,7 @@ def calculate_route(matrix):
         dest.write(dumps_matrix(matrix_sym, name="My Route"))
     # print(dumps_matrix(matrix_sym, name="My Route"))
     # run the optimization with concorde
-    tour = run_concorde(outf, start=10, solver="concorde")
+    tour = run_concorde(outf, start=0, solver="concorde")
     # or with LKH
     # tour = run(outf, start=10, solver="LKH")
     tour['tour'].append(tour['tour'][0])

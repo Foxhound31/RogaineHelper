@@ -33,6 +33,8 @@ private slots:
 
     void on_nodesTable_currentCellChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
+    void on_saveNodesButton_clicked();
+
 protected:
     void keyPressEvent(QKeyEvent *ev);
 
