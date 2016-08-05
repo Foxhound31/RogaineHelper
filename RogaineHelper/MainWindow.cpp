@@ -115,44 +115,30 @@ void MainWindow::on_openMapButton_clicked()
 void MainWindow::on_setScaleButton_clicked()
 {
     // find two and only two squares
-    QPointF begin, end; // in scene coordinates
-    bool moreThanTwoPoints = false; // if there are more than two square marks on the map
-
+    double lineLen = 0; // in scene coordinates
     foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsRectItem::Type) {
-            if (begin.isNull()) {
-                begin = item->mapToScene(item->boundingRect().center());
-            }
-            else if (end.isNull()) {
-                end = item->mapToScene(item->boundingRect().center());
-            }
-            else {
-                moreThanTwoPoints = true;
-            }
+        if( item->type() == CustomLine::Type) {
+            lineLen = ((CustomLine*)item)->line().length();
         }
     }
 
-    if (moreThanTwoPoints || begin.isNull() || end.isNull()) {
+    if (!lineLen) {
         QMessageBox::critical(this,
                               tr("Error"),
-                              tr("Only two marks should be on the map to measure scale"),
+                              tr("Two marks should be on the map to measure scale"),
                               QMessageBox::Ok);
         return;
     }
 
     // Save result
-    scaleKmInPoint = ui.scaleSpinBox->value() / QLineF(begin, end).length();
-    ui.textBrowser->append("Scene " + QString::number(QLineF(begin, end).length()) +
-                           " points is " + ui.scaleSpinBox->text() + " kilometers");
-
-    ui.textBrowser->append("Map height " + QString::number(mapScene.height()) +
-                           " points, width " + QString::number(mapScene.width()) + " points");
+    scaleKmInPoint = ui.scaleSpinBox->value() / lineLen;
+    ui.textBrowser->append("Scene " + QString::number(lineLen) + " points is " + ui.scaleSpinBox->text() + " kilometers");
+    ui.textBrowser->append("Map height " + QString::number(mapScene.height()) + " points, width " + QString::number(mapScene.width()) + " points");
 
     // Update scene scale
     double newHeight = mapScene.height() * scaleKmInPoint;
     double newWidth = mapScene.width() * scaleKmInPoint;
-    ui.textBrowser->append("Map height " + QString::number(newHeight) +
-                           " km, width " + QString::number(newWidth) + " km");
+    ui.textBrowser->append("Map height " + QString::number(newHeight) + " km, width " + QString::number(newWidth) + " km");
 
     //mapScene.setSceneRect(0, 0, newWidth, newHeight);
 
@@ -467,7 +453,7 @@ void MainWindow::itemSelected(QGraphicsItem* item)
 
     if (item->type() == CustomLine::Type) {
         ui.segmentDistKm->setText(QString::number(((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint, 'g', 3));
-        ui.totalDistKm->setText(QString::number(((CustomRect*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
+        ui.totalDistKm->setText(QString::number(((CustomLine*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
     }
 
     if (item->type() == QGraphicsLineItem::Type) {
@@ -564,16 +550,18 @@ void MainWindow::on_clearEdges_clicked()
 }
 
 //--------------------------------------------------------------------------------------
-// Clear milestones - rects and black lines
+// Clear distance - rects and lines
 //--------------------------------------------------------------------------------------
 void MainWindow::on_clearButton_clicked()
 {
     foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsRectItem::Type || (item->type() == QGraphicsLineItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::black)) {
+        if( item->type() == CustomLine::Type || item->type() == CustomRect::Type ) {
             mapScene.removeItem(item);
             delete item;
         }
     }
+    ui.segmentDistKm->setText("0");
+    ui.totalDistKm->setText("0");
 }
 
 
