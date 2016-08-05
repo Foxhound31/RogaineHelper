@@ -91,6 +91,7 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
     // right button stop line drawing
     if (mouseEvent->button() == Qt::RightButton) {
         if (isLineDrawing) {
+            lastItem->setNextLine(nullptr);
             isLineDrawing = false;
             removeItem(currentLine);
             delete currentLine;
@@ -126,31 +127,31 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
             int radius = 7;
             const QPointF center = mouseEvent->scenePos();
 
-            // Draw sqare
-            QGraphicsRectItem* newItem = new QGraphicsRectItem(center.x()-radius, center.y()-radius, 2*radius, 2*radius);
-            //newItem->setFlag(QGraphicsItem::ItemIsMovable, true);
-            newItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-            newItem->setFlag(QGraphicsItem::ItemIsFocusable, true);
-            newItem->setZValue(1);
+            // Draw new line
+            QGraphicsLineItem* newLine = new QGraphicsLineItem(center.x(), center.y(), center.x(), center.y());
+            //newLine->setFlag(QGraphicsItem::ItemIsMovable, true);
+            newLine->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            QPen linePen(Qt::black);
+            linePen.setWidth(5);
+            newLine->setPen(linePen);
+            addItem(newLine);
 
+            // Draw new point
+            CustomRect* newItem = new CustomRect(QRectF(center.x()-radius, center.y()-radius, 2*radius, 2*radius));
             QPen newPen(Qt::black);
             newPen.setWidth(1);
             newItem->setPen(newPen);
             QBrush newBrush(Qt::black);
             newItem->setBrush(newBrush);
-
             addItem(newItem);
 
-            // Draw line
-            QGraphicsLineItem* newLine = new QGraphicsLineItem(center.x(), center.y(), center.x(), center.y());
-            //newLine->setFlag(QGraphicsItem::ItemIsMovable, true);
-            newLine->setFlag(QGraphicsItem::ItemIsSelectable, true);
+            // Connect previous line
+            if (isLineDrawing && currentLine) {
+                newItem->setPrevLine(currentLine);
+            }
 
-            QPen linePen(Qt::black);
-            linePen.setWidth(5);
-            newLine->setPen(linePen);
-
-            addItem(newLine);
+            // Connect next line
+            newItem->setNextLine(newLine);
 
             currentLine = newLine;
             lastItem = newItem;
@@ -420,5 +421,3 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 
 */
-
-
