@@ -45,12 +45,12 @@ MainWindow::MainWindow(QWidget* parent) :
 
     // Mark table
     ui.nodesTable->setColumnCount(6);
-    ui.nodesTable->setColumnWidth(0, 20);
-    ui.nodesTable->setColumnWidth(1, 30);
-    ui.nodesTable->setColumnWidth(2, 30);
-    ui.nodesTable->setColumnWidth(3, 30);
-    ui.nodesTable->setColumnWidth(4, 0);
-    ui.nodesTable->setColumnWidth(5, 0);
+    ui.nodesTable->setColumnWidth(0, 20); // 0 - check box widget - use this node for solution or not
+    ui.nodesTable->setColumnWidth(1, 30); // 1 - node number 0-99
+    ui.nodesTable->setColumnWidth(2, 30); // 2 - X coord in kilometers
+    ui.nodesTable->setColumnWidth(3, 30); // 3 - Y coord in kilometers
+    ui.nodesTable->setColumnWidth(4, 0);  // 4 - X coord on scene
+    ui.nodesTable->setColumnWidth(5, 0);  // 5 - Y coord on scene
     ui.nodesTable->setContentsMargins(1,1,1,1);
 
     QStringList headerList;
@@ -105,7 +105,8 @@ void MainWindow::on_openMapButton_clicked()
     ui.setScaleButton->setEnabled(true);
     ui.scaleDistLabel->setEnabled(true);
     ui.scaleSpinBox->setEnabled(true);
-
+    ui.distanceGroupBox->setEnabled(true);
+    ui.nodesGroupBox->setEnabled(true);
 }
 
 //--------------------------------------------------------------------------------------
@@ -155,8 +156,6 @@ void MainWindow::on_setScaleButton_clicked()
 
     //mapScene.setSceneRect(0, 0, newWidth, newHeight);
 
-    ui.nodesGroupBox->setEnabled(true);
-    ui.distanceGroupBox->setEnabled(true);
 }
 
 
@@ -353,10 +352,6 @@ void MainWindow::on_nodesTable_currentCellChanged(int currentRow, int currentCol
         }
     }
 }
-
-
-
-
 
 
 

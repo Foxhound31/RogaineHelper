@@ -12,6 +12,7 @@
 // edges for distance measurement
 class CustomLine : public QGraphicsLineItem
 {
+public:
     CustomLine (const QLineF& line) : QGraphicsLineItem(line) {
         setFlag(QGraphicsItem::ItemIsMovable);
         setFlag(QGraphicsItem::ItemIsSelectable);
@@ -160,7 +161,7 @@ private:
     // line chain
     bool isLineDrawing;
     CustomRect * lastItem;
-    QGraphicsLineItem * currentLine;
+    CustomLine * currentLine;
 
 private:
     QList <QPointF> m_points;

@@ -127,8 +127,18 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
             int radius = 7;
             const QPointF center = mouseEvent->scenePos();
 
+//            // Draw new line
+//            QGraphicsLineItem* newLine = new QGraphicsLineItem(center.x(), center.y(), center.x(), center.y());
+//            //newLine->setFlag(QGraphicsItem::ItemIsMovable, true);
+//            newLine->setFlag(QGraphicsItem::ItemIsSelectable, true);
+//            QPen linePen(Qt::black);
+//            linePen.setWidth(5);
+//            newLine->setPen(linePen);
+//            addItem(newLine);
+
+
             // Draw new line
-            QGraphicsLineItem* newLine = new QGraphicsLineItem(center.x(), center.y(), center.x(), center.y());
+            CustomLine * newLine = new CustomLine(QLineF(center.x(), center.y(), center.x(), center.y()));
             //newLine->setFlag(QGraphicsItem::ItemIsMovable, true);
             newLine->setFlag(QGraphicsItem::ItemIsSelectable, true);
             QPen linePen(Qt::black);
@@ -137,13 +147,14 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
             addItem(newLine);
 
             // Draw new point
-            CustomRect* newItem = new CustomRect(QRectF(center.x()-radius, center.y()-radius, 2*radius, 2*radius));
+            CustomRect * newItem = new CustomRect(QRectF(center.x()-radius, center.y()-radius, 2*radius, 2*radius));
             QPen newPen(Qt::black);
             newPen.setWidth(1);
             newItem->setPen(newPen);
             QBrush newBrush(Qt::black);
             newItem->setBrush(newBrush);
             addItem(newItem);
+
 
             // Connect previous line
             if (isLineDrawing && currentLine) {
