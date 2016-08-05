@@ -63,13 +63,17 @@ EDGE_WEIGHT_SECTION
 }
 
 QVector<int> tspRoute(const QString& tspFileName) {
+
+    qDebug() << "Concorde solver for tsp file:" << tspFileName;
+
     QString command = QString("concorde.exe ") + tspFileName;
     int exitCode = QProcess::execute(command);
 
     if (exitCode == -2) {
         qDebug() << "concorde cannot be started";
         throw std::runtime_error("concorde cannot be started");
-    } else if(exitCode == -1) {
+    }
+    else if(exitCode == -1) {
         qDebug() << "concorde crashed";
         throw std::runtime_error("concorde crashed");
     }

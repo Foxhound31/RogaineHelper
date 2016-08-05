@@ -30,11 +30,13 @@ SOURCES += \
             main.cpp \
             MainWindow.cpp \
             MapRecognizer.cpp \
-            OpencvQtTools.cpp
+            OpencvQtTools.cpp \
+            tsp.cpp
 HEADERS += \
             MainWindow.h \
             MapRecognizer.h \
-            OpencvQtTools.h
+            OpencvQtTools.h \
+            tsp.h
 FORMS += \
             MainWindow.ui
 
