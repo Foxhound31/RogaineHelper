@@ -115,44 +115,30 @@ void MainWindow::on_openMapButton_clicked()
 void MainWindow::on_setScaleButton_clicked()
 {
     // find two and only two squares
-    QPointF begin, end; // in scene coordinates
-    bool moreThanTwoPoints = false; // if there are more than two square marks on the map
-
+    double lineLen = 0; // in scene coordinates
     foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsRectItem::Type) {
-            if (begin.isNull()) {
-                begin = item->mapToScene(item->boundingRect().center());
-            }
-            else if (end.isNull()) {
-                end = item->mapToScene(item->boundingRect().center());
-            }
-            else {
-                moreThanTwoPoints = true;
-            }
+        if( item->type() == CustomLine::Type) {
+            lineLen = ((CustomLine*)item)->line().length();
         }
     }
 
-    if (moreThanTwoPoints || begin.isNull() || end.isNull()) {
+    if (!lineLen) {
         QMessageBox::critical(this,
                               tr("Error"),
-                              tr("Only two marks should be on the map to measure scale"),
+                              tr("Two marks should be on the map to measure scale"),
                               QMessageBox::Ok);
         return;
     }
 
     // Save result
-    scaleKmInPoint = ui.scaleSpinBox->value() / QLineF(begin, end).length();
-    ui.textBrowser->append("Scene " + QString::number(QLineF(begin, end).length()) +
-                           " points is " + ui.scaleSpinBox->text() + " kilometers");
-
-    ui.textBrowser->append("Map height " + QString::number(mapScene.height()) +
-                           " points, width " + QString::number(mapScene.width()) + " points");
+    scaleKmInPoint = ui.scaleSpinBox->value() / lineLen;
+    ui.textBrowser->append("Scene " + QString::number(lineLen) + " points is " + ui.scaleSpinBox->text() + " kilometers");
+    ui.textBrowser->append("Map height " + QString::number(mapScene.height()) + " points, width " + QString::number(mapScene.width()) + " points");
 
     // Update scene scale
     double newHeight = mapScene.height() * scaleKmInPoint;
     double newWidth = mapScene.width() * scaleKmInPoint;
-    ui.textBrowser->append("Map height " + QString::number(newHeight) +
-                           " km, width " + QString::number(newWidth) + " km");
+    ui.textBrowser->append("Map height " + QString::number(newHeight) + " km, width " + QString::number(newWidth) + " km");
 
     //mapScene.setSceneRect(0, 0, newWidth, newHeight);
 
@@ -209,6 +195,7 @@ void MainWindow::on_saveNodesButton_clicked()
 //--------------------------------------------------------------------------------------
 void MainWindow::on_openNodesButton_clicked()
 {
+
     // Open settings to read path to files
     QSettings settings(settingsFileName, QSettings::IniFormat);
     QString path = settings.value(settingsKeyPath).toString();
@@ -227,6 +214,10 @@ void MainWindow::on_openNodesButton_clicked()
         ui.textBrowser->append("Operation failed");
         return;
     }
+
+    // Clear prev nodes
+    on_clearNodesButton_clicked();
+    on_clearEdges_clicked();
 
     QDataStream stream(&file);
     int rowCount;
@@ -260,6 +251,28 @@ void MainWindow::on_openNodesButton_clicked()
         newItem =  new QTableWidgetItem(string);
         ui.nodesTable->setItem(i, 5, newItem);
     }
+
+
+
+
+    // Add to scene
+    for (int i = 0; i < ui.nodesTable->rowCount(); i++) {
+        int radius = 20;
+
+        // Draw circle
+        QGraphicsEllipseItem* newItem = new QGraphicsEllipseItem( ui.nodesTable->item(i, 4)->text().toDouble()-radius, ui.nodesTable->item(i, 5)->text().toDouble()-radius, 2*radius, 2*radius);
+        //newItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+        newItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+        newItem->setFlag(QGraphicsItem::ItemIsFocusable, true);
+        newItem->setZValue(1);
+
+        QPen newPen(Qt::blue);
+        newPen.setWidth(5);
+        newItem->setPen(newPen);
+
+        mapScene.addItem(newItem);
+    }
+
 
     // Save path into settings
     settings.setValue(settingsKeyPath, QFileInfo(fileName).absoluteDir().absolutePath());
@@ -462,7 +475,7 @@ void MainWindow::itemSelected(QGraphicsItem* item)
 
     if (item->type() == CustomLine::Type) {
         ui.segmentDistKm->setText(QString::number(((QGraphicsLineItem*)item)->line().length() * scaleKmInPoint, 'g', 3));
-        ui.totalDistKm->setText(QString::number(((CustomRect*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
+        ui.totalDistKm->setText(QString::number(((CustomLine*)item)->getTotalLen() * scaleKmInPoint, 'g', 3));
     }
 
     if (item->type() == QGraphicsLineItem::Type) {
@@ -505,7 +518,6 @@ void MainWindow::itemInserted(QGraphicsItem*item)
         ui.nodesTable->setItem(freeRow, 5, newItem);
 
         ui.nodesTable->sortItems(1);
-
     }
 }
 
@@ -559,16 +571,18 @@ void MainWindow::on_clearEdges_clicked()
 }
 
 //--------------------------------------------------------------------------------------
-// Clear milestones - rects and black lines
+// Clear distance - rects and lines
 //--------------------------------------------------------------------------------------
 void MainWindow::on_clearButton_clicked()
 {
     foreach(QGraphicsItem *item, mapScene.items()) {
-        if( item->type() == QGraphicsRectItem::Type || (item->type() == QGraphicsLineItem::Type && ((QGraphicsLineItem*)item)->pen().color() == Qt::black)) {
+        if( item->type() == CustomLine::Type || item->type() == CustomRect::Type ) {
             mapScene.removeItem(item);
             delete item;
         }
     }
+    ui.segmentDistKm->setText("0");
+    ui.totalDistKm->setText("0");
 }
 
 

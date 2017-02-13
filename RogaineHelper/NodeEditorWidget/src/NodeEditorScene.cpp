@@ -10,6 +10,74 @@
 
 
 
+
+// move node with all connected lines
+QVariant CustomRect::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    if (change == ItemPositionChange && scene()) {
+        // value is the new position.
+        QPointF newCenterPos = QPointF(value.toPointF().x() + rect().center().x(), value.toPointF().y() + rect().center().y());
+        // Move the required point of the line to the center of the elipse
+        if (_nextLine)
+            _nextLine->setLine(QLineF(newCenterPos, _nextLine->line().p2()));
+        if (_prevLine)
+            _prevLine->setLine(QLineF(_prevLine->line().p1(), newCenterPos));
+    }
+    return QGraphicsItem::itemChange(change, value);
+}
+
+
+// get total length of all connected lines
+int CustomRect::getTotalLen()
+{
+    int result = 0;
+    CustomRect * tmpItem;
+
+    tmpItem = this;
+    while(tmpItem) {
+        if (tmpItem->nextLine()) {
+            result += tmpItem->nextLine()->line().length();
+            tmpItem = tmpItem->nextLine()->nextRect();
+        }
+        else break;
+    }
+
+    tmpItem = this;
+    while(tmpItem) {
+        if (tmpItem->prevLine()) {
+            result += tmpItem->prevLine()->line().length();
+            tmpItem = tmpItem->prevLine()->prevRect();
+        }
+        else break;
+    }
+    return result;
+}
+
+
+// get total length of all connected lines
+int CustomLine::getTotalLen() {
+    if (_nextRect)
+        return _nextRect->getTotalLen();
+    else if (_prevRect)
+        return _prevRect->getTotalLen();
+    else return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 NodeEditorScene::NodeEditorScene(QWidget *parent)
     : QGraphicsScene(parent)
 {
@@ -76,7 +144,9 @@ void NodeEditorScene::mousePressEvent(QGraphicsSceneMouseEvent * mouseEvent)
 
     if (activeItem->type() == QGraphicsLineItem::Type ||
         activeItem->type() == QGraphicsRectItem::Type ||
-        activeItem->type() == QGraphicsEllipseItem::Type) {
+        activeItem->type() == QGraphicsEllipseItem::Type ||
+        activeItem->type() == CustomLine::Type ||
+        activeItem->type() == CustomRect::Type ) {
 
         emit itemSelected(activeItem);
     }
@@ -155,14 +225,14 @@ void NodeEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent * mouseEvent)
             newItem->setBrush(newBrush);
             addItem(newItem);
 
-
-            // Connect previous line
+            // Connect previous line to the hew item
             if (isLineDrawing && currentLine) {
+                currentLine->setNextRect(newItem);
                 newItem->setPrevLine(currentLine);
             }
-
             // Connect next line
             newItem->setNextLine(newLine);
+            newLine->setPrevRect(newItem);
 
             currentLine = newLine;
             lastItem = newItem;

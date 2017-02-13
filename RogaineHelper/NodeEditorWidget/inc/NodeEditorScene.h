@@ -6,6 +6,42 @@
 #include "NodePort.h"
 #include "NodeConnection.h"
 
+class CustomRect;
+class CustomLine;
+
+
+// nodes for distance measurement
+class CustomRect : public QGraphicsRectItem
+{
+public:
+
+    enum { Type = 107 };
+    int type() const Q_DECL_OVERRIDE {return Type;}
+
+    CustomRect (const QRectF& rect) : QGraphicsRectItem(rect) {
+        setFlag(QGraphicsItem::ItemIsMovable);
+        setFlag(QGraphicsItem::ItemIsSelectable);
+        setFlag(QGraphicsItem::ItemIsFocusable);
+        setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
+        setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+        _nextLine = nullptr;
+        _prevLine = nullptr;
+    }
+
+    int getTotalLen(); // get total length of all connected lines
+    void setNextLine(CustomLine *newLine) { _nextLine = newLine; }
+    void setPrevLine(CustomLine *newLine) { _prevLine = newLine; }
+    CustomLine * nextLine() { return _nextLine; }
+    CustomLine * prevLine() { return _prevLine; }
+
+protected:
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+
+private:
+    CustomLine *_nextLine;
+    CustomLine *_prevLine;
+};
+
 
 
 
@@ -13,92 +49,31 @@
 class CustomLine : public QGraphicsLineItem
 {
 public:
+
+    enum { Type = 106 };
+    int type() const Q_DECL_OVERRIDE {return Type;}
+
     CustomLine (const QLineF& line) : QGraphicsLineItem(line) {
-        setFlag(QGraphicsItem::ItemIsMovable);
+        //setFlag(QGraphicsItem::ItemIsMovable);
         setFlag(QGraphicsItem::ItemIsSelectable);
         setFlag(QGraphicsItem::ItemIsFocusable);
         setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
         setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-        nextRect = nullptr;
-        prevRect = nullptr;
+        _nextRect = nullptr;
+        _prevRect = nullptr;
     }
 
-    // get total length of all connected lines
-    int getTotalLen() {
-        int result = 0;
-        return result;
-    }
+
+    int getTotalLen(); // get total length of all connected lines
+    void setNextRect(CustomRect *newRect) { _nextRect = newRect; }
+    void setPrevRect(CustomRect *newRect) { _prevRect = newRect; }
+    CustomRect * nextRect() { return _nextRect; }
+    CustomRect * prevRect() { return _prevRect; }
 
 private:
-    QGraphicsRectItem * nextRect;
-    QGraphicsRectItem * prevRect;
+    CustomRect * _nextRect;
+    CustomRect * _prevRect;
 };
-
-
-// nodes for distance measurement
-class CustomRect : public QGraphicsRectItem
-{
-public:
-    CustomRect (const QRectF& rect) : QGraphicsRectItem(rect) {
-        setFlag(QGraphicsItem::ItemIsMovable);
-        setFlag(QGraphicsItem::ItemIsSelectable);
-        setFlag(QGraphicsItem::ItemIsFocusable);
-        setFlag(QGraphicsItem::ItemSendsScenePositionChanges);
-        setFlag(QGraphicsItem::ItemSendsGeometryChanges);
-        nextLine = nullptr;
-        prevLine = nullptr;
-    }
-
-    void setNextLine(QGraphicsLineItem *newLine) { nextLine = newLine; }
-    void setPrevLine(QGraphicsLineItem *newLine) { prevLine = newLine; }
-
-    // get total length of all connected lines
-    int getTotalLen() {
-        int result = 0;
-//        CustomRect * tmpItem;
-//        if (nextLinePtr && nextItem) {
-//            tmpItem = this;
-//            while(tmpItem) {
-//                result += nextLinePtr->line().length();
-//                tmpItem = tmpItem->nextItem;
-//            }
-//        }
-//        if (prevLinePtr) {
-//        }
-        return result;
-    }
-
-
-    QVariant itemChange(GraphicsItemChange change, const QVariant &value)
-    {
-        if (change == ItemPositionChange && scene()) {
-            // value is the new position.
-            QPointF newPos = value.toPointF();
-            updateLnes(newPos);
-        }
-        return QGraphicsItem::itemChange(change, value);
-    }
-
-    void updateLnes(QPointF newPos) {
-        QPointF newCenterPos = QPointF(newPos.x() + rect().center().x(), newPos.y() + rect().center().y());
-        // Move the required point of the line to the center of the elipse
-        if (nextLine) {
-            nextLine->setLine(QLineF(newCenterPos, nextLine->line().p2()));
-        }
-        if (prevLine) {
-            prevLine->setLine(QLineF(prevLine->line().p1(), newCenterPos));
-        }
-    }
-
-private:
-    QGraphicsLineItem *nextLine;
-    QGraphicsLineItem *prevLine;
-};
-
-
-
-
-
 
 
 
