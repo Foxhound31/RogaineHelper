@@ -1,4 +1,4 @@
-package com.rogainer.rogainer.rogainer;
+package com.rogainer.rogainer;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.rogainer.rogainer.rogainer", appContext.getPackageName());
+        assertEquals("com.rogainer.rogainer", appContext.getPackageName());
     }
 }

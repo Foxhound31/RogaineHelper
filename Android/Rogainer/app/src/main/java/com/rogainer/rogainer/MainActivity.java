@@ -1,4 +1,4 @@
-package com.rogainer.rogainer.rogainer;
+package com.rogainer.rogainer;
 
 import android.app.Activity;
 import android.os.Bundle;
