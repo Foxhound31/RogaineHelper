@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <CheckBox
+        android:text="@string/view_settings_dialog_labels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/labelsCheckBox" />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/underlayerSpinner"
+        android:entries="@array/underlayers_array" />
+
+    <TextView
+        android:text="@string/opacity_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:singleLine="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/opacitySeekBar"
+        android:max="100"
+        android:longClickable="false"
+        android:progress="100" />
+
+    <CheckBox
+        android:text="@string/view_settings_dialog_numbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/numbersCheckBox" />
+
+    <CheckBox
+        android:text="@string/view_settings_dialog_routes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/routesCheckBox" />
+</LinearLayout>

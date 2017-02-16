@@ -12,8 +12,22 @@
         <item>Uranus</item>
         <item>Neptune</item>
     </string-array>
+    <string-array name="underlayers_array">
+        <item>No underlayer</item>
+        <item>Google</item>
+        <item>Yandex</item>
+        <item>OSM</item>
+    </string-array>
+    <string name="opacity_spinner">Opacity</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    <string name="view_settings_dialog_title">Show</string>
+    <string name="view_settings_dialog_positive">OK</string>
+    <string name="view_settings_dialog_negative">Cancel</string>
+    <string name="view_settings_dialog_labels">Labels</string>
+    <string name="view_settings_dialog_underlayer">Underlayer</string>
+    <string name="view_settings_dialog_numbers">Numbers</string>
+    <string name="view_settings_dialog_routes">Routes</string>
 </resources>

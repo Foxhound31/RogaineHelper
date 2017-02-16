@@ -1,14 +1,18 @@
 package com.rogainer.rogainer;
 
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -19,15 +23,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ViewSettingsDialogFragment.ViewSettingsDialogListener {
     private String[] mDrawerTitles;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    private ViewSettingsDialogFragment mViewSettingsDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
             selectItem(0);
         }
 
+
+        mViewSettingsDialogFragment = new ViewSettingsDialogFragment();
     }
 
     @Override
@@ -110,15 +118,13 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_view:
-                // User chose the "View" action
-                // as a favorite...
+                mViewSettingsDialogFragment.show(getSupportFragmentManager(), "viewSettingsDialog");
                 return true;
 
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -204,4 +210,54 @@ public class MainActivity extends AppCompatActivity {
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        tv.setText("OK");
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        tv.setText("Cancel");
+    }
+
+    @Override
+    public void onDialogLabelsCheckedChanged(DialogFragment dialog, boolean b) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        String text = "labels ";
+        text += Boolean.toString(b);
+        tv.setText(text);
+    }
+
+    @Override
+    public void onDialogUnderlayerItemSelected(DialogFragment dialog, int position, long id) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        tv.setText("spinner");
+    }
+
+    @Override
+    public void onDialogOpacityChange(DialogFragment dialog) {}
+
+    @Override
+    public void onDialogNumbersCheckedChanged(DialogFragment dialog, boolean b) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        String text = "numbers ";
+        text += Boolean.toString(b);
+        tv.setText(text);
+    }
+
+    @Override
+    public void onDialogRoutesCheckedChanged(DialogFragment dialog, boolean b) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        String text = "routes ";
+        text += Boolean.toString(b);
+        tv.setText(text);
+    }
 }
+
