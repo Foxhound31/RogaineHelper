@@ -1,6 +1,5 @@
 package com.rogainer.rogainer;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,14 +9,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class ViewSettingsDialogFragment extends DialogFragment {
     /* The activity that creates an instance of this dialog fragment must
