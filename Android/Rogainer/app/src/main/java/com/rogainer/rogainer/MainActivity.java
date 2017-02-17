@@ -238,11 +238,18 @@ public class MainActivity extends AppCompatActivity implements ViewSettingsDialo
     @Override
     public void onDialogUnderlayerItemSelected(DialogFragment dialog, int position, long id) {
         TextView tv = (TextView)findViewById(R.id.debug_text);
-        tv.setText("spinner");
+        String text = "spinner ";
+        text += Long.toString(id);
+        tv.setText(text);
     }
 
     @Override
-    public void onDialogOpacityChange(DialogFragment dialog) {}
+    public void onDialogOpacityChanged(DialogFragment dialog, int progress) {
+        TextView tv = (TextView)findViewById(R.id.debug_text);
+        String text = "opacity ";
+        text += Integer.toString(progress);
+        tv.setText(text);
+    }
 
     @Override
     public void onDialogNumbersCheckedChanged(DialogFragment dialog, boolean b) {

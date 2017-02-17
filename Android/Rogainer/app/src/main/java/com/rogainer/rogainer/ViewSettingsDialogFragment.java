@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
@@ -27,13 +28,14 @@ public class ViewSettingsDialogFragment extends DialogFragment {
         public void onDialogNegativeClick(DialogFragment dialog);
         public void onDialogLabelsCheckedChanged(DialogFragment dialog, boolean b);
         public void onDialogUnderlayerItemSelected(DialogFragment dialog, int position, long id);
-        public void onDialogOpacityChange(DialogFragment dialog);
+        public void onDialogOpacityChanged(DialogFragment dialog, int progress);
         public void onDialogNumbersCheckedChanged(DialogFragment dialog, boolean b);
         public void onDialogRoutesCheckedChanged(DialogFragment dialog, boolean b);
     }
 
     // Use this instance of the interface to deliver action events
     ViewSettingsDialogListener mListener;
+    View mView;
 
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -58,11 +60,12 @@ public class ViewSettingsDialogFragment extends DialogFragment {
 
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        mView = inflater.inflate(R.layout.view_dialog, null);
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         builder.setTitle(R.string.view_settings_dialog_title)
-                .setView(inflater.inflate(R.layout.view_dialog, null))
+                .setView(mView)
                 .setPositiveButton(R.string.view_settings_dialog_positive, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         mListener.onDialogPositiveClick(ViewSettingsDialogFragment.this);
@@ -79,21 +82,13 @@ public class ViewSettingsDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.view_dialog, container, false);
+        View view = mView;
 
-        // all these methods don't work :{
         CheckBox chk1 = (CheckBox)view.findViewById(R.id.labelsCheckBox);
         chk1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mListener.onDialogLabelsCheckedChanged(ViewSettingsDialogFragment.this, b);
-            }
-        });
-
-        chk1.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onDialogPositiveClick(ViewSettingsDialogFragment.this);
             }
         });
 
@@ -106,6 +101,21 @@ public class ViewSettingsDialogFragment extends DialogFragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        SeekBar sb = (SeekBar)view.findViewById(R.id.opacitySeekBar);
+        sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener () {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mListener.onDialogOpacityChanged(ViewSettingsDialogFragment.this, progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+
         });
 
         CheckBox chk2 = (CheckBox)view.findViewById(R.id.numbersCheckBox);
