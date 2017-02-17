@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:keepScreenOn="false">
 
     <CheckBox
         android:text="@string/view_settings_dialog_labels"
@@ -17,13 +19,6 @@
         android:id="@+id/underlayerSpinner"
         android:entries="@array/underlayers_array" />
 
-    <TextView
-        android:text="@string/opacity_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:singleLine="true" />
-
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,6 +26,12 @@
         android:max="100"
         android:longClickable="false"
         android:progress="100" />
+
+    <TextView
+        android:text="@string/opacity_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView" />
 
     <CheckBox
         android:text="@string/view_settings_dialog_numbers"

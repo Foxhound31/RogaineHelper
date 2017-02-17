@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rogainer</string>
+    <string name="about">О программе</string>
+    <string name="donate">Поддержать разработчика</string>
+    <string name="drawer_close">Закрыть navigation drawer</string>
+    <string name="drawer_open">Открыть navigation drawer</string>
+    <string name="help">Справка</string>
+    <string name="map_view_settings">Настройки вида карты</string>
+    <string name="opacity_spinner">Прозрачность</string>
+    <string name="settings">Настройки</string>
+    <string name="view_settings_dialog_labels">Метки</string>
+    <string name="view_settings_dialog_negative">Отмена</string>
+    <string name="view_settings_dialog_numbers">Числа</string>
+    <string name="view_settings_dialog_positive">OK</string>
+    <string name="view_settings_dialog_routes">Маршруты</string>
+    <string name="view_settings_dialog_title">Показать</string>
+    <string name="view_settings_dialog_underlayer">Подложка</string>
+    <string-array name="underlayers_array">
+        <item>Без подложки</item>
+        <item>Google</item>
+        <item>Яндекс</item>
+        <item>OSM</item>
+    </string-array>
+</resources>
