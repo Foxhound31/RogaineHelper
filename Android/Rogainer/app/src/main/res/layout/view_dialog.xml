@@ -13,26 +13,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/labelsCheckBox" />
 
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/underlayerSpinner"
-        android:entries="@array/underlayers_array" />
-
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/opacitySeekBar"
-        android:max="100"
-        android:longClickable="false"
-        android:progress="100" />
-
-    <TextView
-        android:text="@string/opacity_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView" />
-
     <CheckBox
         android:text="@string/view_settings_dialog_numbers"
         android:layout_width="match_parent"
@@ -44,4 +24,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/routesCheckBox" />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/underlayerSpinner"
+        android:entries="@array/underlayers_array_values" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/opacitySeekBar"
+        android:max="100"
+        android:longClickable="false"
+        android:progress="100" />
+
+    <TextView
+        android:text="@string/view_settings_dialog_opacity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView" />
+
 </LinearLayout>

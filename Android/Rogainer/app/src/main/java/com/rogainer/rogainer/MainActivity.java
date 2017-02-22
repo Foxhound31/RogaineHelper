@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private ViewSettingsDialogFragment mViewSettingsDialogFragment;
+    private ViewSettingsPreferenceFragment mViewSettingsPreferenceFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity
 
 
         mViewSettingsDialogFragment = new ViewSettingsDialogFragment();
+        mViewSettingsPreferenceFragment = new ViewSettingsPreferenceFragment();
     }
 
     @Override
@@ -109,10 +112,12 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item
+
                 return true;
 
             case R.id.action_view:
                 mViewSettingsDialogFragment.show(getSupportFragmentManager(), "viewSettingsDialog");
+                //mViewSettingsPreferenceFragment.
                 return true;
 
             default:
