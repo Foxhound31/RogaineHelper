@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:title="@string/view_settings_dialog_labels"
+        android:defaultValue="true"
+        android:id="@+id/labelsCheckBox" />
+
+    <SwitchPreference
+        android:title="@string/view_settings_dialog_numbers"
+        android:defaultValue="true"
+        android:id="@+id/numbersCheckBox" />
+
+    <SwitchPreferenceCompat
+        android:title="@string/view_settings_dialog_routes"
+        android:defaultValue="true"
+        android:id="@+id/routesCheckBox" />
+
+    <ListPreference
+        android:title="@string/view_settings_dialog_underlayer"
+        android:entries="@array/underlayers_array_values"
+        android:defaultValue="@string/underlayers_array_default"
+        android:summary="@string/underlayers_array_default"
+        android:id="@+id/underlayerSpinner" />
+
+    <SeekBarPreference
+        android:title="@string/view_settings_dialog_opacity"
+        android:defaultValue="50" />
+
+    <!--<SeekBarPreference-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/opacitySeekBar"-->
+        <!--android:max="100"-->
+        <!--android:longClickable="false"-->
+        <!--android:progress="100" />-->
+
+    <!--<TextViewPreference-->
+        <!--android:text="@string/opacity_spinner"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/textView" />-->
+
+</PreferenceScreen>

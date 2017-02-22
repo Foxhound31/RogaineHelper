@@ -10,6 +10,11 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:installLocation="auto"
         >
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
     <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

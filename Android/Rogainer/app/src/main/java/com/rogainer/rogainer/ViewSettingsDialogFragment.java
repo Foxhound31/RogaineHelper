@@ -14,6 +14,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 public class ViewSettingsDialogFragment extends DialogFragment {
     /* The activity that creates an instance of this dialog fragment must
@@ -32,6 +34,7 @@ public class ViewSettingsDialogFragment extends DialogFragment {
     // Use this instance of the interface to deliver action events
     ViewSettingsDialogListener mListener;
     View mView;
+
 
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -64,11 +67,19 @@ public class ViewSettingsDialogFragment extends DialogFragment {
                 .setView(mView)
                 .setPositiveButton(R.string.view_settings_dialog_positive, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        // Save preferences
+//                        Log.d("myTag", "Button OK pressed");
+//                        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+//                        editor.putInt(getString(R.string.view_settings_file_key), newHighScore);
+//                        editor.commit();
+
                         mListener.onDialogPositiveClick(ViewSettingsDialogFragment.this);
                     }
                 })
                 .setNegativeButton(R.string.view_settings_dialog_negative, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        Log.d("myTag", "Button CANCEL pressed");
                         mListener.onDialogNegativeClick(ViewSettingsDialogFragment.this);
                     }
                 });

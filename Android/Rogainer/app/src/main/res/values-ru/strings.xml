@@ -7,7 +7,6 @@
     <string name="drawer_open">Открыть navigation drawer</string>
     <string name="help">Справка</string>
     <string name="map_view_settings">Настройки вида карты</string>
-    <string name="opacity_spinner">Прозрачность</string>
     <string name="settings">Настройки</string>
     <string name="view_settings_dialog_labels">Метки</string>
     <string name="view_settings_dialog_negative">Отмена</string>
@@ -22,4 +21,6 @@
         <item>Яндекс</item>
         <item>OSM</item>
     </string-array>
+    <string name="view_settings_dialog_opacity">Прозрачность карты</string>
+    <string name="underlayers_array_default">Не показывать</string>
 </resources>

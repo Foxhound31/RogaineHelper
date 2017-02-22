@@ -1,5 +1,6 @@
 package com.rogainer.rogainer;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -9,14 +10,25 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import static android.R.attr.onClick;
 
 public class MainActivity extends AppCompatActivity
         implements ViewSettingsDialogFragment.ViewSettingsDialogListener
@@ -28,6 +40,11 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private ViewSettingsDialogFragment mViewSettingsDialogFragment;
+    private ViewSettingsPreferenceFragment mViewSettingsPreferenceFragment;
+    private Button mSaveButton;
+    private Button mLoadButton;
+    private TextView mDebugTxt;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +73,8 @@ public class MainActivity extends AppCompatActivity
 
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+        mDebugTxt = (TextView)findViewById(R.id.debug_text);
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
@@ -88,6 +107,54 @@ public class MainActivity extends AppCompatActivity
 
 
         mViewSettingsDialogFragment = new ViewSettingsDialogFragment();
+        mViewSettingsPreferenceFragment = new ViewSettingsPreferenceFragment();
+
+        fileName = "filename.txt";
+
+        mSaveButton = (Button)findViewById(R.id.saveButton);
+        mSaveButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String string = mDebugTxt.getText().toString();
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+                    outputStream.write(string.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    Log.d("myTag", "exception");
+                }
+            }
+        });
+
+        mLoadButton = (Button)findViewById(R.id.loadButton);
+        mLoadButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String string = mDebugTxt.getText().toString();
+                FileInputStream inputStream;
+                try {
+                    inputStream = openFileInput(fileName);
+                    String s = convertStreamToString(inputStream);
+                    inputStream.close();
+                    mDebugTxt.setText(s);
+                } catch (Exception e) {
+                    Log.d("myTag", "exception");
+                }
+            }
+        });
+    }
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
     }
 
     @Override
@@ -109,10 +176,12 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item
+
                 return true;
 
             case R.id.action_view:
                 mViewSettingsDialogFragment.show(getSupportFragmentManager(), "viewSettingsDialog");
+                //mViewSettingsPreferenceFragment.
                 return true;
 
             default:
