@@ -2,6 +2,7 @@ package com.rogainer.rogainer;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.content.Intent;
 
 public class MainActivity extends AppCompatActivity
         implements ViewSettingsDialogFragment.ViewSettingsDialogListener
@@ -112,7 +114,8 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item
-
+                Intent intent = new Intent(this, AppPreferencesActivity.class);
+                startActivity(intent);
                 return true;
 
             case R.id.action_view:
